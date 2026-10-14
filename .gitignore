@@ -1,0 +1,45 @@
+# Dependencies & Build Output
+node_modules/
+dist/
+dist-ssr/
+.vite/
+build/
+coverage/
+
+# Environment Variables & Secrets (Wajib disembunyikan!)
+.env
+.env.*
+!.env.example
+
+# IDE, AI Agent Cache & OS Files
+.antigravity/
+.cursor/
+.kiro/
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+
+# Logs & Temporary Files
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.local
+
+# Dokumen Mentah Internal / Pribadi (Jangan di-push ke repo kode)
+chat.txt
+*.docx
+*.xlsx
+*.csv
+*.mp4
+*.zip
+*.tar.gz

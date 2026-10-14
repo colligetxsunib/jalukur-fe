@@ -1,0 +1,131 @@
+import { DemoPersona } from '../types';
+
+export const DEMO_PERSONAS: Record<string, DemoPersona> = {
+  skenario_a: {
+    id: 'skenario_a',
+    nama: 'Rani - Belum Punya Target',
+    tagline: 'Lulusan 2026 • SMAN Akreditasi A (DKI) • Rapor 88,5',
+    deskripsi: 'Siswa kelas 12 dengan rapor kuat di bidang eksakta dan bahasa, namun masih bingung menentukan jurusan spesifik. Ingin eksplorasi jurusan rekomendasi AI.',
+    profile: {
+      tahunLulus: 2026,
+      provinsi: 'DKI Jakarta',
+      akreditasiSekolah: 'A',
+      skorTryout: 645,
+      nilaiRapor: {
+        matematika: 91,
+        fisika: 88,
+        kimia: 86,
+        biologi: 85,
+        ekonomi: 84,
+        sosiologi: 82,
+        geografi: 80,
+        bahasaIndonesia: 90,
+        bahasaInggris: 92,
+      },
+      trenNilai: 'Naik',
+      peringkatParalel: 12,
+      totalSiswaAngkatan: 320,
+      interestScores: {
+        logikaKoding: 5,
+        kesehatanBiologi: 2,
+        bisnisManajemen: 3,
+        desainKreatif: 4,
+        sosialHukum: 2,
+        rekayasaFisika: 4,
+      },
+      interestTags: ['#LogikaKomputasi', '#Software', '#ProblemSolving', '#UIUXDesign'],
+      freeStoryText: 'Saya sangat tertarik dengan dunia teknologi, suka belajar ngulik koding HTML/Python mandiri, memecahkan teka-teki logika matematika, dan mendesain antarmuka aplikasi sederhana. Ingin profesi yang berdampak di industri digital masa depan.',
+      alumniDiterima: {
+        'ui-ti': true,
+        'ugm-ilkom': false,
+        'itb-ti': true,
+      },
+    },
+    shortlistProdiIds: [],
+    preferredStep: 3, // Will jump straight to Step 3 Mode A Explore
+  },
+
+  skenario_b: {
+    id: 'skenario_b',
+    nama: 'Dimas - Sudah Punya Target',
+    tagline: 'Lulusan 2026 • SMAN Akreditasi A (Jabar) • Tryout 620',
+    deskripsi: 'Siswa kelas 12 yang sudah punya 3 target prodi impian: UI Teknologi Informasi, ITB Teknik Industri, dan UGM Ilmu Komputer. Ingin evaluasi kelayakan skor & strategi realistis.',
+    profile: {
+      tahunLulus: 2026,
+      provinsi: 'Jawa Barat',
+      akreditasiSekolah: 'A',
+      skorTryout: 620,
+      nilaiRapor: {
+        matematika: 86,
+        fisika: 84,
+        kimia: 83,
+        biologi: 80,
+        ekonomi: 82,
+        sosiologi: 80,
+        geografi: 78,
+        bahasaIndonesia: 85,
+        bahasaInggris: 87,
+      },
+      trenNilai: 'Stabil',
+      peringkatParalel: 38,
+      totalSiswaAngkatan: 360,
+      interestScores: {
+        logikaKoding: 5,
+        kesehatanBiologi: 1,
+        bisnisManajemen: 4,
+        desainKreatif: 3,
+        sosialHukum: 2,
+        rekayasaFisika: 5,
+      },
+      interestTags: ['#SistemInformasi', '#RekayasaIndustri', '#Koding', '#SupplyChain'],
+      freeStoryText: 'Cita-cita saya bekerja di industri teknologi atau manufaktur modern. Tertarik mengintegrasikan efisiensi industri dengan sistem perangkat lunak.',
+      alumniDiterima: {
+        'ui-ti': false,
+        'itb-ti': true,
+        'ugm-ilkom': false,
+      },
+    },
+    shortlistProdiIds: ['ui-ti', 'itb-ti', 'ugm-ilkom'],
+    preferredStep: 4, // Directly analyze targets
+  },
+
+  skenario_tepi: {
+    id: 'skenario_tepi',
+    nama: 'Skenario Tepi - Kasus Gugur Gate (Lulus 2022)',
+    tagline: 'Lulusan 2022 • Batas Maksimal SNBT Lewat (> 3 Tahun)',
+    deskripsi: 'Uji ketahanan aturan sistem mutlak (Gate checking). Siswa lulusan tahun 2022 mencoba mendaftar SNBT siklus 2026 (melebihi batas maksimal 3 tahun kelulusan). Sistem WAJIB otomatis menggugurkan pada Gate.',
+    profile: {
+      tahunLulus: 2022, // Fails Gate: SNBT max 3 years (2024, 2025, 2026)
+      provinsi: 'Jawa Timur',
+      akreditasiSekolah: 'B',
+      skorTryout: 690, // Even with high score, must fail Gate!
+      nilaiRapor: {
+        matematika: 82,
+        fisika: 80,
+        kimia: 78,
+        biologi: 75,
+        ekonomi: 76,
+        sosiologi: 74,
+        geografi: 72,
+        bahasaIndonesia: 80,
+        bahasaInggris: 82,
+      },
+      trenNilai: 'Stabil',
+      peringkatParalel: 60,
+      totalSiswaAngkatan: 280,
+      interestScores: {
+        logikaKoding: 4,
+        kesehatanBiologi: 2,
+        bisnisManajemen: 3,
+        desainKreatif: 2,
+        sosialHukum: 3,
+        rekayasaFisika: 4,
+      },
+      interestTags: ['#Teknik', '#Informatika'],
+      freeStoryText: 'Pernah gap year dan bekerja, sekarang ingin mencoba kembali masuk PTN.',
+      alumniDiterima: {},
+    },
+    shortlistProdiIds: ['ui-ti', 'its-elektro'],
+    preferredStep: 4, // Show hard gate failure immediately
+  },
+};

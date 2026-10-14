@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    @apply bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased min-h-[100dvh] font-sans transition-colors duration-200;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Custom scrollbars with dark mode support */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+.dark ::-webkit-scrollbar-track {
+  background: #0f172a;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: #334155;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Touch target & mobile input styles */
+@media (max-width: 640px) {
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents auto-zoom in iOS Safari */
+  }
+}
+
+/* Print styles for Step 6 PDF export */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
+  }
+
+  html, body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    font-size: 9pt;
+  }
+
+  * {
+    color-scheme: light !important;
+  }
+
+  /* Sembunyikan semua navigasi, header, stepper, floating button AI, dan footer web saat print */
+  header, 
+  nav, 
+  footer,
+  .no-print, 
+  [data-no-print="true"],
+  button,
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Reset root & layout padding to avoid wasting vertical page space */
+  #root, main {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
+    display: block !important;
+    background: transparent !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-card {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border: none !important;
+    box-shadow: none !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-card * {
+    color-scheme: light !important;
+  }
+}
