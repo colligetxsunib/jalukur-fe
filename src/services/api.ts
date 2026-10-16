@@ -524,61 +524,10 @@ class ApiService {
   public async exploreRecommendations(
     profile: StudentProfile,
   ): Promise<ExploreRecommendation[]> {
-    const fallbackFn = () => computeExploreRecommendations(profile);
-    const res = await this.request<any>(
-      "/explore",
-      {
-        method: "POST",
-        // Backend ExploreRequest (extra="forbid") hanya menerima { top_n?, jalur? }.
-        // Profil dibaca backend dari sesi, BUKAN dari body → kirim {} agar tidak 422.
-        body: JSON.stringify({}),
-      },
-      fallbackFn,
-    );
-
-    // Jalur demo: fallbackFn sudah mengembalikan ExploreRecommendation[].
-    if (res.isFallback) {
-      return res.data as ExploreRecommendation[];
-    }
-
-    // Jalur live: backend membungkus hasil dalam { rekomendasi: [...], ... } (Task 0).
-    // Unwrap defensif agar konsumen selalu menerima array dan prodiNama tidak pernah undefined.
-    const rawItems = (res.data?.rekomendasi ?? res.data ?? []) as any[];
-    return rawItems.map((item: any, idx: number) => {
-      const prodiNama = String(
-        item?.prodiNama || item?.nama_prodi || item?.prodi_nama || item?.nama || item?.rumpun || ''
-      );
-      const prodiId = String(
-        item?.prodiId || item?.prodi_id || (Array.isArray(item?.prodi_ids) && item.prodi_ids[0]) || `rec_${idx}`
-      );
-      return {
-        prodiId,
-        prodiNama,
-        rumpun: (item?.rumpun as any) || 'Saintek',
-        skorTotal: Number(item?.skorTotal ?? Math.round((item?.skor_kecocokan ?? 0) * 100)),
-        kemiripanMinat: Number(item?.kemiripanMinat ?? Math.round((item?.komponen?.minat ?? 0) * 100)),
-        kesesuaianNilai: Number(item?.kesesuaianNilai ?? Math.round((item?.komponen?.nilai ?? 0) * 100)),
-        alasanKecocokan: String(item?.alasanKecocokan || item?.alasan || ''),
-        peluangKarir: Array.isArray(item?.peluangKarir)
-          ? item.peluangKarir
-          : (Array.isArray(item?.contoh_profesi) ? item.contoh_profesi : []),
-        ptnTersedia: Array.isArray(item?.ptnTersedia)
-          ? item.ptnTersedia
-          : (Array.isArray(item?.ptn) ? item.ptn.map((p: any) => {
-              const rawId = String(p?.id || p?.ptn_id || '');
-              const ptnId = rawId ? (rawId.startsWith('ptn-') ? rawId : `ptn-${rawId}`) : '';
-              const specificProdiId = p?.prodiId || p?.prodi_id || undefined;
-              return {
-                ptnId,
-                ptnNama: String(p?.nama || p?.ptn_nama || ''),
-                dayaTampungSNBT: Number(p?.dayaTampungSNBT ?? p?.daya_tampung_snbt ?? 50),
-                dayaTampungSNBP: Number(p?.dayaTampungSNBP ?? p?.daya_tampung_snbp ?? 30),
-                akreditasiProdi: String(p?.akreditasiProdi || p?.akreditasi || 'A'),
-                prodiId: specificProdiId,
-              };
-            }) : []),
-      };
-    });
+    // Sesuai desain UI & permintaan pengguna: gunakan kalkulasi rekomendasi prodi deterministik
+    // berbasis kurasi PRODI_LIST agar kartu prodi menampilkan pilihan PTN yang presisi & relevan
+    // (1 PTN per jurusan sesuai kurasi MVP), bukan daftar seluruh 10 PTN massal dari backend.
+    return computeExploreRecommendations(profile);
   }
 
   // 4b. Tes Minat RIASEC — instrumen (GET /riasec/questions)
