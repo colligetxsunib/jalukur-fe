@@ -13,6 +13,7 @@ import {
   HelpCircle,
   BookOpen,
   Bot,
+  X,
 } from 'lucide-react';
 
 interface ChatMessage {
@@ -137,26 +138,37 @@ export const AIDrawer: React.FC = () => {
         </button>
       )}
 
-      {/* AI Bottom Sheet (swipe-down to dismiss) */}
+      {/* AI Bottom Sheet (swipe-down to dismiss on mobile, docked to right corner on desktop) */}
       <BottomSheet
         open={isAiDrawerOpen}
         onClose={closeAiDrawer}
-        maxWidth={520}
-        className="h-[90dvh]"
+        maxWidth={480}
+        desktopPlacement="right"
+        className="h-[90dvh] md:h-[640px]"
         header={
           <div className="px-5 pb-3 pt-1">
-            <div className="flex items-center gap-2 mb-2">
-              <div className="p-2 bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-200 rounded-xl">
-                <Sparkles className="w-4 h-4" />
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="p-2 bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-200 rounded-xl shrink-0">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-display font-bold text-h3 text-slate-900 dark:text-slate-100 leading-tight">
+                    Asisten RAG SNPMB Resmi
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Sitasi Dokumen BPPP &amp; Penjelasan Keputusan
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <h3 className="font-display font-bold text-h3 text-slate-900 dark:text-slate-100 leading-tight">
-                  Asisten RAG SNPMB Resmi
-                </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Sitasi Dokumen BPPP &amp; Penjelasan Keputusan
-                </p>
-              </div>
+              <button
+                type="button"
+                onClick={closeAiDrawer}
+                aria-label="Tutup Asisten AI"
+                className="shrink-0 -mr-1 p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             {/* Active Context Banner */}

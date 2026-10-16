@@ -30,8 +30,10 @@ export interface BottomSheetProps {
   /** Jarak drag (px) sebelum dianggap dismiss. Default 110. */
   dismissThreshold?: number
   className?: string
-  /** Lebar maksimum konten (desktop); sheet tetap center. Default 480px. */
+  /** Lebar maksimum konten (desktop); sheet tetap center bila desktopPlacement='center'. Default 480px. */
   maxWidth?: number
+  /** Penempatan di desktop: 'center' (tengah) atau 'right' (pojok kanan bawah native). Default 'center'. */
+  desktopPlacement?: 'center' | 'right'
 }
 
 export const BottomSheet: React.FC<BottomSheetProps> = ({
@@ -45,6 +47,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   dismissThreshold = 110,
   className = '',
   maxWidth = 480,
+  desktopPlacement = 'center',
 }) => {
   const [mounted, setMounted] = useState(open)
   const [visible, setVisible] = useState(false) // mengontrol transisi masuk/keluar
@@ -94,8 +97,14 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
 
   // --- Drag-to-dismiss (pointer events) ---
   const onPointerDown = (e: React.PointerEvent) => {
-    // hanya mulai drag dari grabber/header area (ditandai data-sheet-handle)
+    // Pada desktop dengan placement 'right', nonaktifkan drag agar interaksi mouse tetap native
+    if (desktopPlacement === 'right' && typeof window !== 'undefined' && window.innerWidth >= 768) {
+      return
+    }
     const target = e.target as HTMLElement
+    // Abaikan jika interaksi pada button
+    if (target.closest('button')) return
+    // hanya mulai drag dari grabber/header area (ditandai data-sheet-handle)
     if (!target.closest('[data-sheet-handle]')) return
     dragStart.current = { y: e.clientY, t: Date.now() }
     ;(e.target as HTMLElement).setPointerCapture?.(e.pointerId)
@@ -142,7 +151,13 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
       />
 
       {/* Panel */}
-      <div className="absolute inset-x-0 bottom-0 flex justify-center">
+      <div
+        className={
+          desktopPlacement === 'right'
+            ? 'absolute inset-x-0 bottom-0 flex justify-center md:justify-end md:pr-6 lg:pr-8 md:pb-6 pointer-events-none'
+            : 'absolute inset-x-0 bottom-0 flex justify-center pointer-events-none'
+        }
+      >
         <div
           ref={panelRef}
           onPointerDown={onPointerDown}
@@ -153,18 +168,30 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
             transform: panelTransform,
             transition,
             maxWidth,
-            touchAction: 'none',
+            touchAction: desktopPlacement === 'right' ? 'auto' : 'none',
           }}
           className={[
-            'w-full bg-white dark:bg-slate-900 rounded-t-3xl shadow-2xl',
-            'border-t border-x border-slate-200 dark:border-slate-800',
-            'flex flex-col max-h-[90dvh] overflow-hidden',
+            'w-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col overflow-hidden pointer-events-auto',
+            desktopPlacement === 'right'
+              ? 'rounded-t-3xl md:rounded-3xl border-t border-x md:border border-slate-200 dark:border-slate-800 max-h-[90dvh] md:max-h-[calc(100dvh-3.5rem)]'
+              : 'rounded-t-3xl border-t border-x border-slate-200 dark:border-slate-800 max-h-[90dvh]',
             className,
           ].join(' ')}
         >
           {/* Grabber + header (area drag) */}
-          <div data-sheet-handle className="shrink-0 cursor-grab active:cursor-grabbing">
-            <div className="flex justify-center pt-3 pb-1">
+          <div
+            data-sheet-handle
+            className={`shrink-0 ${
+              desktopPlacement === 'right'
+                ? 'cursor-grab active:cursor-grabbing md:cursor-default'
+                : 'cursor-grab active:cursor-grabbing'
+            }`}
+          >
+            <div
+              className={`flex justify-center pt-3 pb-1 ${
+                desktopPlacement === 'right' ? 'md:hidden' : ''
+              }`}
+            >
               <span className="h-1 w-9 rounded-full bg-slate-300 dark:bg-slate-600" />
             </div>
             {header ?? (
