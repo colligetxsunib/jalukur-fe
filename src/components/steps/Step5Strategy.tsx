@@ -132,17 +132,17 @@ export const Step5Strategy: React.FC = () => {
                           <div>
                             <div className="flex items-center gap-2 flex-wrap">
                               <h4 className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white">
-                                {ptn?.singkatan} • {prodi.nama}
+                                {ptn?.singkatan || ''} • {prodi?.nama || (prodi as any)?.prodiNama || (prodi as any)?.nama_prodi || ''}
                               </h4>
                               <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-brand-50 dark:bg-brand-500/15 text-brand-700 dark:text-brand-200 border border-brand-200 dark:border-brand-500/30">
                                 {choice.jalur}
                               </span>
                             </div>
                             <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                              <span className="tabular-nums">Daya tampung: {prodi.dayaTampungSNBT}</span>
+                              <span className="tabular-nums">Daya tampung: {prodi?.dayaTampungSNBT ?? 0}</span>
                               <span>•</span>
                               <span className={`font-bold font-mono ${CAT_TEXT[kategori]}`}>
-                                {kategori.replace('_', ' ')}
+                                {(kategori || '').replace('_', ' ')}
                               </span>
                             </div>
                           </div>
@@ -332,7 +332,7 @@ export const Step5Strategy: React.FC = () => {
                         className="flex items-center justify-between text-xs p-2.5 bg-white/5 rounded-2xl border border-white/5"
                       >
                         <span className="line-clamp-1 text-slate-300 text-[11px] tabular-nums">
-                          #{c.urutan} {prodi.nama}
+                          #{c.urutan} {prodi?.nama || (prodi as any)?.prodiNama || (prodi as any)?.nama_prodi || ''}
                         </span>
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg font-mono ${CAT_PILL[cat]}`}>
                           {cat}

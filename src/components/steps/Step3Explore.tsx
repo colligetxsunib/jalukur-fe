@@ -48,7 +48,8 @@ const computePositionedRecommendations = (recs: ExploreRecommendation[]): Positi
       quadrant = '🧭 Eksplorasi Alternatif';
     }
 
-    const shortName = rec.prodiNama
+    const rawProdiNama = (rec?.prodiNama || (rec as any)?.nama_prodi || (rec as any)?.prodi_nama || (rec as any)?.nama || '');
+    const shortName = rawProdiNama
       .replace(/^(Teknik|Program Studi|Ilmu)\s+/i, '')
       .replace(/Desain Komunikasi Visual/i, 'DKV')
       .replace(/Teknologi Informasi \/ Ilmu Komputer/i, 'TI / Ilkom')
@@ -61,6 +62,7 @@ const computePositionedRecommendations = (recs: ExploreRecommendation[]): Positi
 
     return {
       ...rec,
+      prodiNama: rawProdiNama,
       rank: idx + 1,
       rawX,
       rawY,
@@ -405,7 +407,7 @@ export const Step3Explore: React.FC = () => {
                                   ? 'scale-105 bg-brand-500 text-white dark:bg-brand-500 ring-4 ring-blue-500/30 shadow-lg px-2.5 sm:px-3 py-1.5 rounded-full flex items-center gap-1.5 font-bold text-[11px] sm:text-xs'
                                   : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-2 border-brand-500 dark:border-blue-400 shadow-md hover:scale-105 px-2 sm:px-2.5 py-1 rounded-full flex items-center gap-1.5 font-semibold text-[10px] sm:text-xs'
                               }`}
-                              title={`${p.prodiNama} (Minat: ${p.rawX}%, Nilai: ${p.rawY}%, Total: ${p.skorTotal}%)`}
+                              title={`${p?.prodiNama || (p as any)?.nama_prodi || (p as any)?.prodi_nama || (p as any)?.nama || ''} (Minat: ${p.rawX}%, Nilai: ${p.rawY}%, Total: ${p.skorTotal}%)`}
                             >
                               <span
                                 className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center font-extrabold text-[10px] shrink-0 ${
@@ -418,7 +420,7 @@ export const Step3Explore: React.FC = () => {
                               >
                                 #{p.rank}
                               </span>
-                              <span className="truncate max-w-[85px] sm:max-w-[110px]">{p.shortName}</span>
+                              <span className="truncate max-w-[85px] sm:max-w-[110px]">{p.shortName || p?.prodiNama || ''}</span>
                               <span className="font-mono text-[10px] sm:text-[11px] opacity-90">({p.skorTotal}%)</span>
                             </button>
                           </div>
@@ -478,7 +480,8 @@ export const Step3Explore: React.FC = () => {
                 {/* KOLOM KANAN (5 cols): PANEL INSPEKTOR JURUSAN AKTIF */}
                 <div className="lg:col-span-5 space-y-4">
                   {selectedRec && (() => {
-                    const prodiDetail = prodiList.find((p) => p.nama === selectedRec.prodiNama);
+                    const activeProdiNama = selectedRec?.prodiNama || (selectedRec as any)?.nama_prodi || (selectedRec as any)?.prodi_nama || (selectedRec as any)?.nama || '';
+                    const prodiDetail = prodiList.find((p) => (activeProdiNama && p.nama === activeProdiNama) || (selectedRec?.prodiId && p.id === selectedRec.prodiId));
                     const mapelPenentu = prodiDetail?.mapelPendukung.join(', ') || 'Matematika, Bahasa Indonesia & Bahasa Inggris';
 
                     return (
@@ -500,7 +503,7 @@ export const Step3Explore: React.FC = () => {
                                     ? 'bg-brand-500 text-white shadow-xs'
                                     : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                                 }`}
-                                title={p.prodiNama}
+                                title={p?.prodiNama || (p as any)?.nama_prodi || (p as any)?.prodi_nama || (p as any)?.nama || ''}
                               >
                                 #{p.rank}
                               </button>
@@ -519,7 +522,7 @@ export const Step3Explore: React.FC = () => {
                             </span>
                           </div>
                           <h4 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-tight">
-                            {selectedRec.prodiNama}
+                            {activeProdiNama}
                           </h4>
                           <p className="text-xs text-brand-500 dark:text-blue-400 font-semibold mt-1">
                             {selectedRec.quadrant}
@@ -615,8 +618,9 @@ export const Step3Explore: React.FC = () => {
                           </span>
                           <div className="space-y-2">
                             {selectedRec.ptnTersedia.map((ptnOpt) => {
+                              const selProdiNama = selectedRec?.prodiNama || (selectedRec as any)?.nama_prodi || (selectedRec as any)?.prodi_nama || (selectedRec as any)?.nama || '';
                               const matchingProdi = prodiList.find(
-                                (p) => p.ptnId === ptnOpt.ptnId && p.nama === selectedRec.prodiNama
+                                (p) => p.ptnId === ptnOpt.ptnId && ((selProdiNama && p.nama === selProdiNama) || (selectedRec?.prodiId && p.id === selectedRec.prodiId))
                               );
                               if (!matchingProdi) return null;
                               const isShortlisted = shortlist.includes(matchingProdi.id);
@@ -645,10 +649,10 @@ export const Step3Explore: React.FC = () => {
                                     onClick={() => {
                                       if (isShortlisted) {
                                         removeFromShortlist(matchingProdi.id);
-                                        showToast(`Menghapus ${matchingProdi.nama} (${ptnOpt.ptnNama}) dari shortlist.`);
+                                        showToast(`Menghapus ${matchingProdi?.nama || ''} (${ptnOpt.ptnNama}) dari shortlist.`);
                                       } else {
                                         addToShortlist(matchingProdi.id);
-                                        showToast(`Menambahkan ${matchingProdi.nama} (${ptnOpt.ptnNama}) ke shortlist.`);
+                                        showToast(`Menambahkan ${matchingProdi?.nama || ''} (${ptnOpt.ptnNama}) ke shortlist.`);
                                       }
                                     }}
                                     className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition cursor-pointer flex items-center gap-1 ${
@@ -692,7 +696,9 @@ export const Step3Explore: React.FC = () => {
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="text-base font-bold text-slate-900 dark:text-white">{rec.prodiNama}</h4>
+                          <h4 className="text-base font-bold text-slate-900 dark:text-white">
+                            {rec?.prodiNama || (rec as any)?.nama_prodi || (rec as any)?.prodi_nama || (rec as any)?.nama || ''}
+                          </h4>
                           <span
                             className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
                               rec.rumpun === 'Saintek'
@@ -753,8 +759,9 @@ export const Step3Explore: React.FC = () => {
                     </span>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                       {rec.ptnTersedia.map((ptnOpt) => {
+                        const recProdiNama = rec?.prodiNama || (rec as any)?.nama_prodi || (rec as any)?.prodi_nama || (rec as any)?.nama || '';
                         const matchingProdi = prodiList.find(
-                          (p) => p.ptnId === ptnOpt.ptnId && p.nama === rec.prodiNama
+                          (p) => p.ptnId === ptnOpt.ptnId && ((recProdiNama && p.nama === recProdiNama) || (rec?.prodiId && p.id === rec.prodiId))
                         );
                         if (!matchingProdi) return null;
 
@@ -910,7 +917,9 @@ export const Step3Explore: React.FC = () => {
                       </div>
 
                       {/* Prodi Title */}
-                      <h4 className="text-base font-bold text-slate-900 dark:text-white mb-1">{prodi.nama}</h4>
+                      <h4 className="text-base font-bold text-slate-900 dark:text-white mb-1">
+                        {prodi?.nama || (prodi as any)?.prodiNama || (prodi as any)?.nama_prodi || ''}
+                      </h4>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed mb-3">
                         {prodi.deskripsi}
                       </p>
@@ -1002,7 +1011,7 @@ export const Step3Explore: React.FC = () => {
                     key={id}
                     className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-50 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 rounded-xl text-xs font-bold border border-blue-200 dark:border-blue-900 whitespace-nowrap"
                   >
-                    <span>{ptn?.singkatan} • {p?.nama}</span>
+                    <span>{ptn?.singkatan || ''} • {p?.nama || (p as any)?.prodiNama || (p as any)?.nama_prodi || ''}</span>
                     <button
                       type="button"
                       onClick={() => removeFromShortlist(id)}

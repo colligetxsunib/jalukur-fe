@@ -123,8 +123,7 @@ export const AIDrawer: React.FC = () => {
               initialQuestion: 'Bagaimana cara memaksimalkan peluang lolos dengan profil saya saat ini?',
             })
           }
-          style={{ bottom: 'calc(1.5rem + var(--safe-bottom))' }}
-          className="no-print fixed right-5 sm:right-6 lg:right-[calc(50%-280px+1.25rem)] z-40 flex items-center gap-2.5 px-4 py-3 min-h-[48px] bg-brand-500 hover:bg-brand-600 text-white rounded-full shadow-[3px_3px_0_0_var(--color-stroke)] border-2 border-[var(--color-stroke)] transition-[transform,background-color] duration-[160ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:scale-105 active:scale-95 group"
+          className="no-print fixed right-5 sm:right-6 lg:right-[calc(50%-280px+1.25rem)] bottom-24 md:bottom-6 z-40 flex items-center gap-2.5 px-4 py-3 min-h-[48px] bg-brand-500 hover:bg-brand-600 text-white rounded-full shadow-[3px_3px_0_0_var(--color-stroke)] border-2 border-[var(--color-stroke)] transition-[transform,background-color] duration-[160ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:scale-105 active:scale-95 group"
           title="Tanya Asisten AI Resmi"
         >
           <div className="relative">
@@ -311,7 +310,11 @@ export const AIDrawer: React.FC = () => {
                                       "{c.kutipan}"
                                     </p>
                                     <a
-                                      href={c.url}
+                                      href={
+                                        c.url && !c.url.startsWith('file:') && !c.url.startsWith('file:///')
+                                          ? c.url
+                                          : 'https://snpmb.bppp.kemdikbud.go.id'
+                                      }
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-600 dark:text-blue-400 hover:underline"

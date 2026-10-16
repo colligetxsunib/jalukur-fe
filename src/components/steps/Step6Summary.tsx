@@ -60,7 +60,7 @@ export const Step6Summary: React.FC = () => {
   );
 
   return (
-    <div className="w-full pb-24 lg:pb-0 print:p-0 print:m-0 print:max-w-none print:w-full">
+    <div className="w-full pb-32 lg:pb-0 print:p-0 print:m-0 print:max-w-none print:w-full">
       {/* Action Bar (Hidden during print) */}
       <div className="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
@@ -190,10 +190,10 @@ export const Step6Summary: React.FC = () => {
                       </td>
                       <td className="py-3 px-3 print:py-1 print:px-1.5">
                         <span className="font-bold text-slate-900 dark:text-white block print:text-[8.5px]">
-                          {item.ptn?.singkatan} — {item.prodi.nama}
+                          {item.ptn?.singkatan || ''} — {item.prodi?.nama || (item.prodi as any)?.prodiNama || (item.prodi as any)?.nama_prodi || ''}
                         </span>
                         <span className="text-[10px] print:text-[7.5px] text-slate-500 dark:text-slate-400">
-                          {item.prodi.rumpun} • Daya Tampung: {item.prodi.dayaTampungSNBT}
+                          {item.prodi?.rumpun || ''} • Daya Tampung: {item.prodi?.dayaTampungSNBT ?? 0}
                         </span>
                       </td>
                       <td className="py-3 px-3 print:py-1 print:px-1.5">
@@ -224,7 +224,7 @@ export const Step6Summary: React.FC = () => {
                               : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
                           }`}
                         >
-                          {cat.replace('_', ' ')}
+                          {(cat || '').replace('_', ' ')}
                         </span>
                       </td>
                       <td className="py-3 px-3 print:py-1 print:px-1.5 font-mono text-[11px] print:text-[8px]">
@@ -266,10 +266,10 @@ export const Step6Summary: React.FC = () => {
                       </span>
                       <div className="min-w-0">
                         <h4 className="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
-                          {item.ptn?.singkatan} — {item.prodi.nama}
+                          {item.ptn?.singkatan || ''} — {item.prodi?.nama || (item.prodi as any)?.prodiNama || (item.prodi as any)?.nama_prodi || ''}
                         </h4>
                         <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                          {item.prodi.rumpun} • Daya Tampung: {item.prodi.dayaTampungSNBT} Kursi
+                          {item.prodi?.rumpun || ''} • Daya Tampung: {item.prodi?.dayaTampungSNBT ?? 0} Kursi
                         </p>
                       </div>
                     </div>
@@ -305,7 +305,7 @@ export const Step6Summary: React.FC = () => {
                             : 'text-slate-600 dark:text-slate-400'
                         }`}
                       >
-                        {cat.replace('_', ' ')}
+                        {(cat || '').replace('_', ' ')}
                       </span>
                     </div>
 
@@ -342,7 +342,7 @@ export const Step6Summary: React.FC = () => {
               {gapItems.length > 0 ? (
                 gapItems.map((item, idx) => (
                   <li key={idx}>
-                    <strong className="text-slate-900 dark:text-white">{item?.prodi.nama} ({item?.ptn?.singkatan}):</strong> Diperlukan peningkatan
+                    <strong className="text-slate-900 dark:text-white">{item?.prodi?.nama || (item?.prodi as any)?.prodiNama || (item?.prodi as any)?.nama_prodi || ''} ({item?.ptn?.singkatan || ''}):</strong> Diperlukan peningkatan
                     sekitar <strong>+{item?.assessment.penilaian?.gap} poin</strong> pada subtes Penalaran
                     Matematika & Literasi Bahasa Inggris untuk menembus ambang batas bawah aman (
                     {item?.assessment.penilaian?.acuan?.rendah}).

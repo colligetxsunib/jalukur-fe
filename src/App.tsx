@@ -43,7 +43,7 @@ const MainContent: React.FC = () => {
         <Header />
         <Stepper />
 
-        <main className="flex-1 pt-5 px-4 pb-28 lg:px-8 lg:pb-8">
+        <main className="flex-1 pt-5 px-4 pb-32 lg:px-8 lg:pb-8">
           {currentStep === 1 && <Step1Session />}
           {currentStep === 2 && <Step2Profile />}
           {currentStep === 3 && <Step3Explore />}

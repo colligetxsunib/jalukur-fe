@@ -127,13 +127,15 @@ export const Step4Analyze: React.FC = () => {
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-base font-bold text-slate-900 dark:text-white">{prodi.nama}</h3>
+                          <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                            {prodi?.nama || (prodi as any)?.prodiNama || (prodi as any)?.nama_prodi || ''}
+                          </h3>
                           <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                            {ptn?.nama}
+                            {ptn?.nama || ''}
                           </span>
                         </div>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                          {prodi.rumpun} • Akreditasi {prodi.akreditasi} • {ptn?.provinsi}
+                          {prodi?.rumpun || ''} • Akreditasi {prodi?.akreditasi || ''} • {ptn?.provinsi || ''}
                         </p>
                       </div>
                     </div>
@@ -260,8 +262,8 @@ export const Step4Analyze: React.FC = () => {
                                   Kategori Kelayakan
                                 </span>
                                 <div className="flex items-center gap-2 mt-0.5">
-                                  <span className={`text-sm font-extrabold px-3 py-1 rounded-xl font-mono shadow-2xs ${KATEGORI_BADGE[penilaian.kategori]}`}>
-                                    {penilaian.kategori.replace('_', ' ')}
+                                  <span className={`text-sm font-extrabold px-3 py-1 rounded-xl font-mono shadow-2xs ${penilaian?.kategori ? KATEGORI_BADGE[penilaian.kategori] : ''}`}>
+                                    {(penilaian?.kategori || '').replace('_', ' ')}
                                   </span>
                                   {penilaian.kategori === 'REACH' && penilaian.gap !== undefined && (
                                     <span className="text-xs font-bold text-reach bg-reach/10 px-2.5 py-1 rounded-xl border border-reach/30 tabular-nums">
@@ -387,7 +389,11 @@ export const Step4Analyze: React.FC = () => {
                         </span>
                         <span>•</span>
                         <a
-                          href={assessment.sumberUrl}
+                          href={
+                            assessment?.sumberUrl && !assessment.sumberUrl.startsWith('file:') && !assessment.sumberUrl.startsWith('file:///')
+                              ? assessment.sumberUrl
+                              : 'https://snpmb.bppp.kemdikbud.go.id'
+                          }
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-brand-600 dark:text-brand-200 hover:underline font-bold inline-flex items-center gap-1"
@@ -405,7 +411,7 @@ export const Step4Analyze: React.FC = () => {
                           openAiDrawer({
                             prodiId,
                             jalur: activeJalur,
-                            initialQuestion: `Kenapa prodi ${prodi.nama} masuk kategori ${penilaian?.kategori || 'tersebut'} untuk profilku?`,
+                            initialQuestion: `Kenapa prodi ${prodi?.nama || (prodi as any)?.prodiNama || (prodi as any)?.nama_prodi || ''} masuk kategori ${penilaian?.kategori || 'tersebut'} untuk profilku?`,
                           })
                         }
                       >

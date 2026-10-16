@@ -473,9 +473,37 @@ class ApiService {
     }
 
     // Jalur live: backend membungkus hasil dalam { rekomendasi: [...], ... } (Task 0).
-    // Unwrap defensif agar konsumen selalu menerima array.
-    // Catatan: bentuk item backend berbeda dari ExploreRecommendation (butuh adapter — Task 9).
-    return (res.data?.rekomendasi ?? []) as ExploreRecommendation[];
+    // Unwrap defensif agar konsumen selalu menerima array dan prodiNama tidak pernah undefined.
+    const rawItems = (res.data?.rekomendasi ?? res.data ?? []) as any[];
+    return rawItems.map((item: any, idx: number) => {
+      const prodiNama = String(
+        item?.prodiNama || item?.nama_prodi || item?.prodi_nama || item?.nama || item?.rumpun || ''
+      );
+      const prodiId = String(
+        item?.prodiId || item?.prodi_id || (Array.isArray(item?.prodi_ids) && item.prodi_ids[0]) || `rec_${idx}`
+      );
+      return {
+        prodiId,
+        prodiNama,
+        rumpun: (item?.rumpun as any) || 'Saintek',
+        skorTotal: Number(item?.skorTotal ?? Math.round((item?.skor_kecocokan ?? 0) * 100)),
+        kemiripanMinat: Number(item?.kemiripanMinat ?? Math.round((item?.komponen?.minat ?? 0) * 100)),
+        kesesuaianNilai: Number(item?.kesesuaianNilai ?? Math.round((item?.komponen?.nilai ?? 0) * 100)),
+        alasanKecocokan: String(item?.alasanKecocokan || item?.alasan || ''),
+        peluangKarir: Array.isArray(item?.peluangKarir)
+          ? item.peluangKarir
+          : (Array.isArray(item?.contoh_profesi) ? item.contoh_profesi : []),
+        ptnTersedia: Array.isArray(item?.ptnTersedia)
+          ? item.ptnTersedia
+          : (Array.isArray(item?.ptn) ? item.ptn.map((p: any) => ({
+              ptnId: String(p?.id || p?.ptn_id || ''),
+              ptnNama: String(p?.nama || p?.ptn_nama || ''),
+              dayaTampungSNBT: Number(p?.dayaTampungSNBT ?? p?.daya_tampung_snbt ?? 0),
+              dayaTampungSNBP: Number(p?.dayaTampungSNBP ?? p?.daya_tampung_snbp ?? 0),
+              akreditasiProdi: String(p?.akreditasiProdi || p?.akreditasi || 'A'),
+            })) : []),
+      };
+    });
   }
 
   // 4b. Tes Minat RIASEC — instrumen (GET /riasec/questions)
@@ -915,12 +943,20 @@ class ApiService {
 
     // sumber backend: {judul, url, halaman}. RagCitation FE butuh {judul, dokumen, halaman, url,
     // kutipan}. Backend tidak mengekspos `dokumen`/`kutipan` terpisah → default aman.
+    const sanitizeCitationUrl = (u: any): string => {
+      const urlStr = String(u ?? "").trim();
+      if (!urlStr || urlStr.startsWith("file:") || urlStr.startsWith("file:///")) {
+        return "https://snpmb.bppp.kemdikbud.go.id";
+      }
+      return urlStr;
+    };
+
     const sumber = (Array.isArray(raw.sumber) ? raw.sumber : []).map(
       (s: any) => ({
         judul: String(s?.judul ?? ""),
         dokumen: String(s?.judul ?? ""),
         halaman: s?.halaman ?? "",
-        url: String(s?.url ?? ""),
+        url: sanitizeCitationUrl(s?.url),
         kutipan: String(s?.kutipan ?? ""),
       }),
     );
