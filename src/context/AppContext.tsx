@@ -185,7 +185,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const deleteGuestSession = async () => {
-    await apiService.deleteSession();
+    // 1. Bersihkan seluruh penyimpanan lokal seketika
+    try {
+      localStorage.removeItem("jalurku_session");
+      localStorage.removeItem("jalurku_profile");
+      localStorage.removeItem("jalurku_shortlist");
+      localStorage.removeItem("jalurku_strategy_choices");
+      localStorage.removeItem("jalurku_active_persona");
+      sessionStorage.clear();
+    } catch (e) {
+      console.warn("Storage clear error:", e);
+    }
+
+    // 2. Reset seluruh state React seketika agar UI langsung bersih tanpa reload
     setSession(null);
     setProfile(defaultProfile);
     setShortlist([]);
@@ -194,6 +206,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     setWhatIfSkorTryout(undefined);
     setCurrentStep(1);
     showToast("Seluruh data sesi Anda berhasil dihapus.");
+
+    // 3. Panggil backend di latar belakang tanpa memblokir UI
+    try {
+      await apiService.deleteSession();
+    } catch (e) {
+      console.warn("Backend session delete error:", e);
+    }
   };
 
   const updateProfile = async (partial: Partial<StudentProfile>) => {
@@ -208,14 +227,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const addToShortlist = (prodiId: string): boolean => {
-    if (shortlist.includes(prodiId)) return false;
+    const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const targetNorm = norm(prodiId);
+
+    if (shortlist.some((id) => id === prodiId || norm(id) === targetNorm)) {
+      return false;
+    }
     if (shortlist.length >= 4) {
       showToast("Batas shortlist maksimal 4 prodi tercapai!");
       return false;
     }
     const updated = [...shortlist, prodiId];
     setShortlist(updated);
-    localStorage.setItem("jalurku_shortlist", JSON.stringify(updated));
+    try {
+      localStorage.setItem("jalurku_shortlist", JSON.stringify(updated));
+    } catch {}
 
     // Also auto-initialize strategy choices if not yet populated
     if (strategyChoices.length < 4) {
@@ -225,29 +251,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         { urutan: nextUrutan, prodiId, jalur: "SNBT" as JalurType },
       ];
       setStrategyChoices(newChoices);
-      localStorage.setItem(
-        "jalurku_strategy_choices",
-        JSON.stringify(newChoices),
-      );
+      try {
+        localStorage.setItem(
+          "jalurku_strategy_choices",
+          JSON.stringify(newChoices),
+        );
+      } catch {}
     }
     showToast("Prodi ditambahkan ke Shortlist Target.");
     return true;
   };
 
   const removeFromShortlist = (prodiId: string) => {
-    const updated = shortlist.filter((id) => id !== prodiId);
+    const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const targetNorm = norm(prodiId);
+
+    const updated = shortlist.filter((id) => id !== prodiId && norm(id) !== targetNorm);
     setShortlist(updated);
-    localStorage.setItem("jalurku_shortlist", JSON.stringify(updated));
+    try {
+      localStorage.setItem("jalurku_shortlist", JSON.stringify(updated));
+    } catch {}
 
     // Also remove from strategy choices and re-index
     const filteredChoices = strategyChoices
-      .filter((c) => c.prodiId !== prodiId)
+      .filter((c) => c.prodiId !== prodiId && norm(c.prodiId) !== targetNorm)
       .map((c, idx) => ({ ...c, urutan: idx + 1 }));
     setStrategyChoices(filteredChoices);
-    localStorage.setItem(
-      "jalurku_strategy_choices",
-      JSON.stringify(filteredChoices),
-    );
+    try {
+      localStorage.setItem(
+        "jalurku_strategy_choices",
+        JSON.stringify(filteredChoices),
+      );
+    } catch {}
   };
 
   const clearShortlist = () => {

@@ -32,9 +32,11 @@ export const Header: React.FC = () => {
               className="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none shrink-0"
               onClick={() => setCurrentStep(session ? 2 : 1)}
             >
-              <div className="w-10 h-10 rounded-xl bg-brand-500 flex items-center justify-center text-white shadow-md shadow-brand-500/20 border-2 border-slate-900/90 dark:border-slate-100/80">
-                <Compass className="w-5 h-5 sm:w-6 sm:h-6" />
-              </div>
+              <img
+                src="/logo.png"
+                alt="JalurKu Logo"
+                className="w-10 h-10 rounded-full object-contain shadow-xs border border-slate-900/10 dark:border-slate-100/20"
+              />
               <div>
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <span className="font-display text-lg sm:text-xl font-extrabold tracking-tight text-brand-600 dark:text-brand-200">

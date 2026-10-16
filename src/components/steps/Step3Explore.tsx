@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { apiService } from '../../services/api';
 import { ExploreRecommendation, Prodi, PTN } from '../../types';
+import { PRODI_LIST, PTN_LIST, findProdiById, findPtnById, getProdiOrFallback } from '../../data/catalog';
 import { Button } from '../ui';
 import {
   Compass,
@@ -123,9 +124,9 @@ export const Step3Explore: React.FC = () => {
   const [loadingExplore, setLoadingExplore] = useState(false);
   const [selectedRecIndex, setSelectedRecIndex] = useState<number>(0);
 
-  // Catalog state
-  const [ptnList, setPtnList] = useState<PTN[]>([]);
-  const [prodiList, setProdiList] = useState<Prodi[]>([]);
+  // Catalog state — inisialisasi awal dengan katalog lokal agar data selalu tersedia
+  const [ptnList, setPtnList] = useState<PTN[]>(PTN_LIST);
+  const [prodiList, setProdiList] = useState<Prodi[]>(PRODI_LIST);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPtn, setSelectedPtn] = useState<string>('all');
   const [selectedRumpun, setSelectedRumpun] = useState<string>('all');
@@ -145,17 +146,71 @@ export const Step3Explore: React.FC = () => {
     };
 
     const fetchCatalog = async () => {
-      const [ptns, prodis] = await Promise.all([
-        apiService.getPTNList(),
-        apiService.getProdiList(),
-      ]);
-      setPtnList(ptns);
-      setProdiList(prodis);
+      try {
+        const [ptns, prodis] = await Promise.all([
+          apiService.getPTNList(),
+          apiService.getProdiList(),
+        ]);
+        const mergedPtns = [...ptns];
+        PTN_LIST.forEach((lp) => {
+          if (!mergedPtns.some((p) => p.id === lp.id || p.singkatan.toLowerCase() === lp.singkatan.toLowerCase())) {
+            mergedPtns.push(lp);
+          }
+        });
+
+        const mergedProdis = [...prodis];
+        PRODI_LIST.forEach((lp) => {
+          if (!mergedProdis.some((p) => p.id === lp.id)) {
+            mergedProdis.push(lp);
+          }
+        });
+
+        setPtnList(mergedPtns);
+        setProdiList(mergedProdis);
+      } catch (err) {
+        console.error('Gagal memuat katalog:', err);
+      }
     };
 
     fetchExplore();
     fetchCatalog();
   }, [profile]);
+
+  // Helper tampilan nama PTN & prodi di shortlist bar agar selalu lengkap dan tidak pernah hanya titik
+  const getShortlistDisplayInfo = (id: string) => {
+    let p = prodiList.find((item) => item.id === id) || PRODI_LIST.find((item) => item.id === id);
+
+    if (!p) {
+      for (const rec of recommendations) {
+        const foundPtn = rec.ptnTersedia.find((opt) => opt.prodiId === id);
+        if (foundPtn) {
+          const ptnObj = ptnList.find((item) => item.id === foundPtn.ptnId) || findPtnById(foundPtn.ptnId);
+          return {
+            prodiNama: rec.prodiNama,
+            ptnNama: foundPtn.ptnNama,
+            ptnSingkatan: ptnObj?.singkatan || foundPtn.ptnNama.slice(0, 5),
+          };
+        }
+      }
+    }
+
+    if (!p) {
+      p = findProdiById(id) || getProdiOrFallback(id);
+    }
+
+    const ptn = (p?.ptnId ? ptnList.find((item) => item.id === p.ptnId) : null) ||
+                findPtnById(p?.ptnId) ||
+                findPtnById(id.split('-')[0]);
+
+    const prodiNama = p?.nama || (p as any)?.prodiNama || (p as any)?.nama_prodi || id;
+    const ptnSingkatan = ptn?.singkatan || (ptn?.nama ? ptn.nama.slice(0, 5) : '');
+
+    return {
+      prodiNama,
+      ptnNama: ptn?.nama || '',
+      ptnSingkatan,
+    };
+  };
 
   // Filter prodi catalog
   const filteredProdis = prodiList.filter((prodi) => {
@@ -628,24 +683,38 @@ export const Step3Explore: React.FC = () => {
                               const ptnSlug = (ptnOpt.ptnId || '').toLowerCase().replace(/^ptn-/, '');
                               const prodiSlug = (selProdiNama || selectedRec?.prodiId || 'prodi').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
-                              const matchingProdi = prodiList.find((p) => {
-                                const pPtnSlug = (p.ptnId || '').toLowerCase().replace(/^ptn-/, '');
-                                const isThisPtn = pPtnSlug === ptnSlug || p.ptnId === ptnOpt.ptnId || (p.ptnId && p.ptnId.toLowerCase().includes(ptnSlug));
-                                if (!isThisPtn) return false;
-
-                                if (ptnOpt.prodiId && p.id === ptnOpt.prodiId) return true;
-                                const pName = (p.nama || '').toLowerCase();
-                                const rName = selProdiNama.toLowerCase();
-                                return pName === rName || (rName.length > 3 && pName.includes(rName)) || (pName.length > 3 && rName.includes(pName));
-                              });
+                              const matchingProdi =
+                                (ptnOpt.prodiId ? prodiList.find((p) => p.id === ptnOpt.prodiId) || PRODI_LIST.find((p) => p.id === ptnOpt.prodiId) : null) ||
+                                prodiList.find((p) => {
+                                  const pPtnSlug = (p.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                                  const isThisPtn = pPtnSlug === ptnSlug || p.ptnId === ptnOpt.ptnId || (p.ptnId && p.ptnId.toLowerCase().includes(ptnSlug));
+                                  if (!isThisPtn) return false;
+                                  const pName = (p.nama || '').toLowerCase();
+                                  const rName = selProdiNama.toLowerCase();
+                                  return pName === rName || (rName.length > 3 && pName.includes(rName)) || (pName.length > 3 && rName.includes(pName));
+                                }) ||
+                                PRODI_LIST.find((p) => {
+                                  const pPtnSlug = (p.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                                  const isThisPtn = pPtnSlug === ptnSlug || p.ptnId === ptnOpt.ptnId || (p.ptnId && p.ptnId.toLowerCase().includes(ptnSlug));
+                                  if (!isThisPtn) return false;
+                                  const pName = (p.nama || '').toLowerCase();
+                                  const rName = selProdiNama.toLowerCase();
+                                  return pName === rName || (rName.length > 3 && pName.includes(rName)) || (pName.length > 3 && rName.includes(pName));
+                                });
 
                               const targetProdiId =
                                 matchingProdi?.id ||
-                                (ptnOpt.prodiId && (ptnOpt.prodiId.toLowerCase().includes(ptnSlug) || ptnOpt.prodiId.startsWith(ptnSlug))
-                                  ? ptnOpt.prodiId
-                                  : `${ptnSlug}-${prodiSlug}`);
+                                ptnOpt.prodiId ||
+                                `${ptnSlug}-${prodiSlug}`;
 
-                              const isShortlisted = shortlist.includes(targetProdiId);
+                              const isShortlisted =
+                                shortlist.includes(targetProdiId) ||
+                                (matchingProdi?.id ? shortlist.includes(matchingProdi.id) : false) ||
+                                (ptnOpt.prodiId ? shortlist.includes(ptnOpt.prodiId) : false) ||
+                                shortlist.some((id) => {
+                                  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+                                  return norm(id) === norm(targetProdiId);
+                                });
 
                               return (
                                 <div
@@ -670,7 +739,16 @@ export const Step3Explore: React.FC = () => {
                                     type="button"
                                     onClick={() => {
                                       if (isShortlisted) {
-                                        removeFromShortlist(targetProdiId);
+                                        const toRemove =
+                                          shortlist.find((id) => {
+                                            if (id === targetProdiId) return true;
+                                            if (matchingProdi?.id && id === matchingProdi.id) return true;
+                                            if (ptnOpt.prodiId && id === ptnOpt.prodiId) return true;
+                                            const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+                                            return norm(id) === norm(targetProdiId);
+                                          }) || targetProdiId;
+
+                                        removeFromShortlist(toRemove);
                                         showToast(`Menghapus ${matchingProdi?.nama || selProdiNama} (${ptnOpt.ptnNama}) dari shortlist.`);
                                       } else {
                                         addToShortlist(targetProdiId);
@@ -785,24 +863,38 @@ export const Step3Explore: React.FC = () => {
                         const ptnSlug = (ptnOpt.ptnId || '').toLowerCase().replace(/^ptn-/, '');
                         const prodiSlug = (recProdiNama || rec?.prodiId || 'prodi').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 
-                        const matchingProdi = prodiList.find((p) => {
-                          const pPtnSlug = (p.ptnId || '').toLowerCase().replace(/^ptn-/, '');
-                          const isThisPtn = pPtnSlug === ptnSlug || p.ptnId === ptnOpt.ptnId || (p.ptnId && p.ptnId.toLowerCase().includes(ptnSlug));
-                          if (!isThisPtn) return false;
-
-                          if (ptnOpt.prodiId && p.id === ptnOpt.prodiId) return true;
-                          const pName = (p.nama || '').toLowerCase();
-                          const rName = recProdiNama.toLowerCase();
-                          return pName === rName || (rName.length > 3 && pName.includes(rName)) || (pName.length > 3 && rName.includes(pName));
-                        });
+                        const matchingProdi =
+                          (ptnOpt.prodiId ? prodiList.find((p) => p.id === ptnOpt.prodiId) || PRODI_LIST.find((p) => p.id === ptnOpt.prodiId) : null) ||
+                          prodiList.find((p) => {
+                            const pPtnSlug = (p.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                            const isThisPtn = pPtnSlug === ptnSlug || p.ptnId === ptnOpt.ptnId || (p.ptnId && p.ptnId.toLowerCase().includes(ptnSlug));
+                            if (!isThisPtn) return false;
+                            const pName = (p.nama || '').toLowerCase();
+                            const rName = recProdiNama.toLowerCase();
+                            return pName === rName || (rName.length > 3 && pName.includes(rName)) || (pName.length > 3 && rName.includes(pName));
+                          }) ||
+                          PRODI_LIST.find((p) => {
+                            const pPtnSlug = (p.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                            const isThisPtn = pPtnSlug === ptnSlug || p.ptnId === ptnOpt.ptnId || (p.ptnId && p.ptnId.toLowerCase().includes(ptnSlug));
+                            if (!isThisPtn) return false;
+                            const pName = (p.nama || '').toLowerCase();
+                            const rName = recProdiNama.toLowerCase();
+                            return pName === rName || (rName.length > 3 && pName.includes(rName)) || (pName.length > 3 && rName.includes(pName));
+                          });
 
                         const targetProdiId =
                           matchingProdi?.id ||
-                          (ptnOpt.prodiId && (ptnOpt.prodiId.toLowerCase().includes(ptnSlug) || ptnOpt.prodiId.startsWith(ptnSlug))
-                            ? ptnOpt.prodiId
-                            : `${ptnSlug}-${prodiSlug}`);
+                          ptnOpt.prodiId ||
+                          `${ptnSlug}-${prodiSlug}`;
 
-                        const isShortlisted = shortlist.includes(targetProdiId);
+                        const isShortlisted =
+                          shortlist.includes(targetProdiId) ||
+                          (matchingProdi?.id ? shortlist.includes(matchingProdi.id) : false) ||
+                          (ptnOpt.prodiId ? shortlist.includes(ptnOpt.prodiId) : false) ||
+                          shortlist.some((id) => {
+                            const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+                            return norm(id) === norm(targetProdiId);
+                          });
 
                         return (
                           <div
@@ -828,7 +920,16 @@ export const Step3Explore: React.FC = () => {
                               type="button"
                               onClick={() => {
                                 if (isShortlisted) {
-                                  removeFromShortlist(targetProdiId);
+                                  const toRemove =
+                                    shortlist.find((id) => {
+                                      if (id === targetProdiId) return true;
+                                      if (matchingProdi?.id && id === matchingProdi.id) return true;
+                                      if (ptnOpt.prodiId && id === ptnOpt.prodiId) return true;
+                                      const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+                                      return norm(id) === norm(targetProdiId);
+                                    }) || targetProdiId;
+
+                                  removeFromShortlist(toRemove);
                                   showToast(`Menghapus ${matchingProdi?.nama || recProdiNama} (${ptnOpt.ptnNama}) dari shortlist.`);
                                 } else {
                                   addToShortlist(targetProdiId);
@@ -1043,18 +1144,18 @@ export const Step3Explore: React.FC = () => {
               <span className="text-xs text-[color-mix(in_srgb,var(--color-ink)_50%,transparent)] italic">Belum ada prodi yang dipilih</span>
             ) : (
               shortlist.map((id) => {
-                const p = prodiList.find((item) => item.id === id);
-                const ptn = p ? ptnList.find((item) => item.id === p.ptnId) : null;
+                const info = getShortlistDisplayInfo(id);
                 return (
                   <span
                     key={id}
                     className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-50 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 rounded-xl text-xs font-bold border border-blue-200 dark:border-blue-900 whitespace-nowrap"
                   >
-                    <span>{ptn?.singkatan || ''} • {p?.nama || (p as any)?.prodiNama || (p as any)?.nama_prodi || ''}</span>
+                    <span>{info.ptnSingkatan ? `${info.ptnSingkatan} • ` : ''}{info.prodiNama}</span>
                     <button
                       type="button"
                       onClick={() => removeFromShortlist(id)}
                       className="text-blue-400 hover:text-rose-600 dark:hover:text-rose-400 text-sm font-bold ml-0.5 cursor-pointer"
+                      title="Hapus pilihan"
                     >
                       ×
                     </button>
