@@ -54,6 +54,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   const [dragY, setDragY] = useState(0)
   const dragStart = useRef<{ y: number; t: number } | null>(null)
   const panelRef = useRef<HTMLDivElement>(null)
+  const isPointerDownInsidePanel = useRef(false)
   const reduce = prefersReducedMotion()
 
   // Mount/unmount dengan transisi keluar
@@ -139,19 +140,48 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
       : `transform ${DURATION.base}ms ${EASE_EXPRESSIVE}`
 
   return (
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true">
+    <div
+      className="fixed inset-0 z-50"
+      role="dialog"
+      aria-modal="true"
+      onPointerDown={(e) => {
+        isPointerDownInsidePanel.current = Boolean(
+          panelRef.current && panelRef.current.contains(e.target as Node)
+        )
+      }}
+      onClick={(e) => {
+        if (
+          !isPointerDownInsidePanel.current &&
+          panelRef.current &&
+          !panelRef.current.contains(e.target as Node)
+        ) {
+          requestClose()
+        }
+        isPointerDownInsidePanel.current = false
+      }}
+    >
       {/* Overlay */}
       <div
         onClick={requestClose}
-        className="absolute inset-0 bg-slate-950/50"
+        className="absolute inset-0 bg-slate-950/50 cursor-pointer"
+        aria-hidden="true"
         style={{
           opacity: visible ? 1 : 0,
           transition: reduce ? 'none' : `opacity ${DURATION.base}ms ease`,
         }}
       />
 
-      {/* Panel */}
+      {/* Panel Wrapper */}
       <div
+        onClick={(e) => {
+          if (
+            !isPointerDownInsidePanel.current &&
+            panelRef.current &&
+            !panelRef.current.contains(e.target as Node)
+          ) {
+            requestClose()
+          }
+        }}
         className={
           desktopPlacement === 'right'
             ? 'absolute inset-x-0 bottom-0 flex justify-center md:justify-end md:pr-6 lg:pr-8 md:pb-6 pointer-events-none'
@@ -160,7 +190,11 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
       >
         <div
           ref={panelRef}
-          onPointerDown={onPointerDown}
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => {
+            isPointerDownInsidePanel.current = true
+            onPointerDown(e)
+          }}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
@@ -209,11 +243,14 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
                   </div>
                   <button
                     type="button"
-                    onClick={requestClose}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      requestClose()
+                    }}
                     aria-label="Tutup"
-                    className="shrink-0 -mr-1 grid place-items-center w-11 h-11 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                    className="shrink-0 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition flex items-center justify-center cursor-pointer shadow-xs active:scale-95"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4.5 h-4.5 stroke-[2.5]" />
                   </button>
                 </div>
               )
