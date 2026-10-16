@@ -592,3 +592,64 @@ export const PROVINCES_INDONESIA = [
   'Papua Pegunungan',
   'Papua Barat Daya',
 ];
+
+export function findPtnById(id?: string): PTN | undefined {
+  if (!id) return undefined;
+  const raw = id.toLowerCase().trim();
+  const slug = raw.replace(/^ptn-/, '');
+  return PTN_LIST.find((p) =>
+    p.id.toLowerCase() === raw ||
+    p.id.toLowerCase() === `ptn-${slug}` ||
+    p.singkatan.toLowerCase() === slug ||
+    p.nama.toLowerCase().includes(slug)
+  );
+}
+
+export function findProdiById(id?: string): Prodi | undefined {
+  if (!id) return undefined;
+  const raw = id.toLowerCase().trim();
+  const direct = PRODI_LIST.find((p) => p.id.toLowerCase() === raw);
+  if (direct) return direct;
+
+  return PRODI_LIST.find((p) =>
+    p.id.toLowerCase().includes(raw) || raw.includes(p.id.toLowerCase())
+  );
+}
+
+export function getProdiOrFallback(id: string): Prodi {
+  const existing = findProdiById(id);
+  if (existing) return existing;
+
+  const parts = id.split('-');
+  const rawPtnSlug = parts[0] || 'ui';
+  const ptn = findPtnById(rawPtnSlug);
+  const ptnId = ptn?.id || (rawPtnSlug.startsWith('ptn-') ? rawPtnSlug : `ptn-${rawPtnSlug}`);
+  const namaWords = parts.length > 1
+    ? parts.slice(1).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+    : id;
+
+  return {
+    id,
+    ptnId,
+    nama: namaWords,
+    rumpun: 'Saintek',
+    akreditasi: 'Unggul',
+    dayaTampungSNBP: 35,
+    dayaTampungSNBT: 50,
+    peminatTahunLaluSNBP: 350,
+    peminatTahunLaluSNBT: 700,
+    mapelPendukung: ['Matematika', 'Bahasa Indonesia', 'Bahasa Inggris'],
+    acuanSkorUTBK: {
+      rendah: 620,
+      tinggi: 670,
+      tahun: 2026,
+      status: 'tersedia',
+    },
+    sumberUrl: 'https://snpmb.bppp.kemdikbud.go.id',
+    terakhirDiverifikasi: '2026-03-01',
+    deskripsi: `Program studi ${namaWords} di ${ptn?.nama || 'PTN'}.`,
+    peluangKarir: ['Praktisi / Profesional', 'Konsultan', 'Peneliti'],
+    tagMinatTerkait: [],
+  };
+}
+

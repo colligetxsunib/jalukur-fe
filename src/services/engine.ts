@@ -10,7 +10,7 @@ import {
   StrategyChoice,
   StrategyEvaluation,
 } from '../types';
-import { PRODI_LIST, PTN_LIST } from '../data/catalog';
+import { PRODI_LIST, PTN_LIST, getProdiOrFallback } from '../data/catalog';
 
 // Helper: Calculate average of rapor grades
 export function calculateRaporAverage(nilaiRapor: StudentProfile['nilaiRapor']): number {
@@ -141,6 +141,7 @@ export function computeExploreRecommendations(
         dayaTampungSNBT: p.dayaTampungSNBT,
         dayaTampungSNBP: p.dayaTampungSNBP,
         akreditasiProdi: p.akreditasi,
+        prodiId: p.id,
       };
     });
 
@@ -436,9 +437,7 @@ export function evaluateStrategyComposition(
   const ptnCountMap: Record<string, number> = {};
 
   const assessedChoices = choices.map((c) => {
-    const prodi = PRODI_LIST.find((p) => p.id === c.prodiId);
-    if (!prodi) return null;
-
+    const prodi = getProdiOrFallback(c.prodiId);
     ptnCountMap[prodi.ptnId] = (ptnCountMap[prodi.ptnId] || 0) + 1;
 
     const assessment = assessTargetProdi(profile, prodi, c.jalur, overrideSkorTryout);
@@ -447,7 +446,7 @@ export function evaluateStrategyComposition(
       prodi,
       assessment,
     };
-  }).filter(Boolean);
+  });
 
   assessedChoices.forEach((item) => {
     if (!item?.assessment.penilaian) return;

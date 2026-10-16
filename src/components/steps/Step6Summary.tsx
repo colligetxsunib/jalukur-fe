@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { PRODI_LIST, PTN_LIST } from '../../data/catalog';
+import { findPtnById, getProdiOrFallback, PRODI_LIST, PTN_LIST } from '../../data/catalog';
 import { assessTargetProdi, calculateRaporAverage } from '../../services/engine';
 import { Button } from '../ui';
 import { haptic, HAPTIC } from '../../lib/haptics';
@@ -36,9 +36,8 @@ export const Step6Summary: React.FC = () => {
 
   // Compute final assessed choices
   const assessedChoices = strategyChoices.map((choice) => {
-    const prodi = PRODI_LIST.find((p) => p.id === choice.prodiId);
-    if (!prodi) return null;
-    const ptn = PTN_LIST.find((p) => p.id === prodi.ptnId);
+    const prodi = getProdiOrFallback(choice.prodiId);
+    const ptn = findPtnById(prodi.ptnId) || PTN_LIST.find((p) => p.id === prodi.ptnId);
     const assessment = assessTargetProdi(
       profile,
       prodi,
@@ -52,7 +51,7 @@ export const Step6Summary: React.FC = () => {
       ptn,
       assessment,
     };
-  }).filter(Boolean);
+  });
 
   // Identify subjects or UTBK gap to boost
   const gapItems = assessedChoices.filter(

@@ -340,9 +340,9 @@ export const Step2Profile: React.FC = () => {
                   type="number"
                   inputMode="numeric"
                   min={1}
-                  value={form.peringkatParalel || ''}
+                  value={form.peringkatParalel !== undefined ? form.peringkatParalel : ''}
                   onChange={(e) => setForm({ ...form, peringkatParalel: e.target.value ? parseInt(e.target.value) : undefined })}
-                  placeholder="Misal: 15"
+                  placeholder="Misal: 15 (kosongkan bila tidak ada)"
                   className={`${INPUT} tabular-nums`}
                 />
               </div>
@@ -355,9 +355,9 @@ export const Step2Profile: React.FC = () => {
                   type="number"
                   inputMode="numeric"
                   min={10}
-                  value={form.totalSiswaAngkatan || ''}
+                  value={form.totalSiswaAngkatan !== undefined ? form.totalSiswaAngkatan : ''}
                   onChange={(e) => setForm({ ...form, totalSiswaAngkatan: e.target.value ? parseInt(e.target.value) : undefined })}
-                  placeholder="Misal: 300"
+                  placeholder="Misal: 300 (kosongkan bila tidak ada)"
                   className={`${INPUT} tabular-nums`}
                 />
               </div>

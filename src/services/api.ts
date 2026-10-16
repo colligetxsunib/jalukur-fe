@@ -13,7 +13,7 @@ import {
   StrategyChoice,
   StrategyEvaluation,
 } from "../types";
-import { PRODI_LIST, PTN_LIST } from "../data/catalog";
+import { PRODI_LIST, PTN_LIST, getProdiOrFallback } from "../data/catalog";
 import { OFFICIAL_RAG_DATABASE } from "../data/ragKnowledge";
 import {
   getRiasecQuestionsLocal,
@@ -422,33 +422,102 @@ class ApiService {
   public async getPTNList(): Promise<PTN[]> {
     const fallbackFn = () => PTN_LIST;
     const res = await this.request<any>(
-      "/catalog/ptn",
+      "/catalog/ptn?limit=100",
       { method: "GET" },
       fallbackFn,
     );
     if (res.isFallback) {
       return res.data as PTN[];
     }
-    // Backend /catalog/ptn berpaginasi: { items, total, page, limit, total_halaman } (Task 0).
-    // Unwrap `items` agar konsumen selalu menerima array.
-    // Catatan: bentuk item backend lebih ramping dari PTN (butuh adapter — Task 9).
-    return (res.data?.items ?? res.data ?? []) as PTN[];
+    const rawItems = (res.data?.items ?? res.data ?? []) as any[];
+    if (!Array.isArray(rawItems) || rawItems.length === 0) {
+      return PTN_LIST;
+    }
+
+    return rawItems.map((item: any, idx: number) => {
+      const rawId = String(item?.id || '').toLowerCase().trim();
+      const local = PTN_LIST.find((p) =>
+        p.id.toLowerCase() === rawId ||
+        p.id.toLowerCase() === `ptn-${rawId}` ||
+        p.singkatan.toLowerCase() === rawId ||
+        p.nama.toLowerCase() === String(item?.nama || '').toLowerCase()
+      );
+      const ptnId = rawId ? (rawId.startsWith('ptn-') ? rawId : `ptn-${rawId}`) : (local?.id || `ptn-${idx}`);
+      const nama = String(item?.nama || local?.nama || '');
+      const singkatan = String(
+        local?.singkatan ||
+        item?.singkatan ||
+        (nama ? nama.split(/\s+/).map((w: string) => w[0]).join('').slice(0, 5).toUpperCase() : 'PTN')
+      );
+
+      return {
+        id: ptnId,
+        kode: String(local?.kode || item?.kode || `PTN-${idx + 1}`),
+        nama,
+        singkatan,
+        provinsi: String(item?.provinsi || local?.provinsi || 'DKI Jakarta'),
+        akreditasi: (local?.akreditasi || item?.akreditasi || 'Unggul') as 'Unggul' | 'A' | 'B',
+        websiteResmi: String(local?.websiteResmi || item?.websiteResmi || 'https://snpmb.bppp.kemdikbud.go.id'),
+        logoUrl: local?.logoUrl,
+      };
+    });
   }
 
   public async getProdiList(): Promise<Prodi[]> {
     const fallbackFn = () => PRODI_LIST;
     const res = await this.request<any>(
-      "/catalog/prodi",
+      "/catalog/prodi?limit=100",
       { method: "GET" },
       fallbackFn,
     );
     if (res.isFallback) {
       return res.data as Prodi[];
     }
-    // Backend /catalog/prodi berpaginasi: { items, total, page, limit, total_halaman } (Task 0).
-    // Unwrap `items` agar konsumen selalu menerima array.
-    // Catatan: bentuk item backend berbeda dari Prodi (butuh adapter — Task 9).
-    return (res.data?.items ?? res.data ?? []) as Prodi[];
+    const rawItems = (res.data?.items ?? res.data ?? []) as any[];
+    if (!Array.isArray(rawItems) || rawItems.length === 0) {
+      return PRODI_LIST;
+    }
+
+    return rawItems.map((item: any, idx: number) => {
+      const id = String(item?.id || `prodi-${idx}`);
+      const nama = String(item?.nama || item?.prodiNama || item?.nama_prodi || '');
+      const rawPtnId = String(item?.ptn?.id || item?.ptnId || item?.ptn_id || '');
+      const ptnId = rawPtnId ? (rawPtnId.startsWith('ptn-') ? rawPtnId : `ptn-${rawPtnId}`) : 'ptn-ui';
+
+      // Match against local catalog for richer mock data
+      const local = PRODI_LIST.find((p) =>
+        p.id === id ||
+        (p.ptnId === ptnId && p.nama.toLowerCase() === nama.toLowerCase())
+      );
+
+      return {
+        id,
+        ptnId,
+        nama: nama || local?.nama || 'Program Studi',
+        rumpun: (item?.rumpun || local?.rumpun || 'Saintek') as 'Saintek' | 'Soshum',
+        akreditasi: (item?.akreditasi || local?.akreditasi || 'Unggul') as 'Unggul' | 'A' | 'Baik Sekali' | 'B',
+        dayaTampungSNBP: Number(item?.dayaTampungSNBP ?? local?.dayaTampungSNBP ?? 30),
+        dayaTampungSNBT: Number(item?.dayaTampungSNBT ?? local?.dayaTampungSNBT ?? 50),
+        peminatTahunLaluSNBP: Number(item?.peminatTahunLaluSNBP ?? local?.peminatTahunLaluSNBP ?? 300),
+        peminatTahunLaluSNBT: Number(item?.peminatTahunLaluSNBT ?? local?.peminatTahunLaluSNBT ?? 600),
+        mapelPendukung: Array.isArray(item?.mapelPendukung) && item.mapelPendukung.length > 0
+          ? item.mapelPendukung
+          : (local?.mapelPendukung || ['Matematika', 'Bahasa Indonesia', 'Bahasa Inggris']),
+        acuanSkorUTBK: local?.acuanSkorUTBK || {
+          rendah: 620,
+          tinggi: 680,
+          tahun: 2026,
+          status: 'tersedia',
+        },
+        sumberUrl: item?.sumberUrl || local?.sumberUrl || 'https://snpmb.bppp.kemdikbud.go.id',
+        terakhirDiverifikasi: item?.terakhirDiverifikasi || local?.terakhirDiverifikasi || '2026-03-01',
+        deskripsi: item?.deskripsi || local?.deskripsi || `Program studi ${nama} jenjang sarjana terakreditasi nasional.`,
+        peluangKarir: Array.isArray(item?.peluangKarir) && item.peluangKarir.length > 0
+          ? item.peluangKarir
+          : (local?.peluangKarir || ['Praktisi / Profesional', 'Konsultan', 'Peneliti']),
+        tagMinatTerkait: local?.tagMinatTerkait || [],
+      };
+    });
   }
 
   // 4. Explore Recommendations (Mode A)
@@ -495,13 +564,19 @@ class ApiService {
           : (Array.isArray(item?.contoh_profesi) ? item.contoh_profesi : []),
         ptnTersedia: Array.isArray(item?.ptnTersedia)
           ? item.ptnTersedia
-          : (Array.isArray(item?.ptn) ? item.ptn.map((p: any) => ({
-              ptnId: String(p?.id || p?.ptn_id || ''),
-              ptnNama: String(p?.nama || p?.ptn_nama || ''),
-              dayaTampungSNBT: Number(p?.dayaTampungSNBT ?? p?.daya_tampung_snbt ?? 0),
-              dayaTampungSNBP: Number(p?.dayaTampungSNBP ?? p?.daya_tampung_snbp ?? 0),
-              akreditasiProdi: String(p?.akreditasiProdi || p?.akreditasi || 'A'),
-            })) : []),
+          : (Array.isArray(item?.ptn) ? item.ptn.map((p: any) => {
+              const rawId = String(p?.id || p?.ptn_id || '');
+              const ptnId = rawId ? (rawId.startsWith('ptn-') ? rawId : `ptn-${rawId}`) : '';
+              const targetProdiId = (Array.isArray(item?.prodi_ids) && item.prodi_ids[0]) || p?.prodiId || undefined;
+              return {
+                ptnId,
+                ptnNama: String(p?.nama || p?.ptn_nama || ''),
+                dayaTampungSNBT: Number(p?.dayaTampungSNBT ?? p?.daya_tampung_snbt ?? 50),
+                dayaTampungSNBP: Number(p?.dayaTampungSNBP ?? p?.daya_tampung_snbp ?? 30),
+                akreditasiProdi: String(p?.akreditasiProdi || p?.akreditasi || 'A'),
+                prodiId: targetProdiId,
+              };
+            }) : []),
       };
     });
   }
@@ -558,8 +633,7 @@ class ApiService {
     const fallbackFn = (): AssessmentResult[] => {
       const results: AssessmentResult[] = [];
       targets.forEach((target) => {
-        const prodi = PRODI_LIST.find((p) => p.id === target.prodiId);
-        if (!prodi) return;
+        const prodi = getProdiOrFallback(target.prodiId);
 
         target.jalur.forEach((j) => {
           results.push(

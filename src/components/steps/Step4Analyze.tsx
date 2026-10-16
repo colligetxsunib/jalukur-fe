@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { apiService } from '../../services/api';
 import { AssessmentResult, CategoryScore, JalurType } from '../../types';
-import { PRODI_LIST, PTN_LIST } from '../../data/catalog';
+import { findPtnById, getProdiOrFallback, PRODI_LIST, PTN_LIST } from '../../data/catalog';
+import { assessTargetProdi } from '../../services/engine';
 import { BentoCard, Button } from '../ui';
 import {
   ShieldAlert,
@@ -104,11 +105,12 @@ export const Step4Analyze: React.FC = () => {
         ) : (
           <div className="space-y-5">
             {shortlist.map((prodiId) => {
-              const prodi = PRODI_LIST.find((p) => p.id === prodiId);
-              if (!prodi) return null;
-              const ptn = PTN_LIST.find((p) => p.id === prodi.ptnId);
+              const prodi = getProdiOrFallback(prodiId);
+              const ptn = findPtnById(prodi.ptnId) || PTN_LIST.find((p) => p.id === prodi.ptnId);
               const activeJalur = activeJalurMap[prodiId] || 'SNBT';
-              const assessment = assessments.find((a) => a.prodiId === prodiId && a.jalur === activeJalur);
+              const assessment =
+                assessments.find((a) => a.prodiId === prodiId && a.jalur === activeJalur) ||
+                assessTargetProdi(profile, prodi, activeJalur, inlineTryoutInput);
               if (!assessment) return null;
 
               const gate = assessment.gate;

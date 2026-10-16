@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { apiService } from '../../services/api';
 import { CategoryScore, JalurType, StrategyEvaluation } from '../../types';
-import { PRODI_LIST, PTN_LIST } from '../../data/catalog';
+import { findPtnById, getProdiOrFallback, PRODI_LIST, PTN_LIST } from '../../data/catalog';
 import { BentoCard, Button } from '../ui';
 import {
   Sliders,
@@ -114,9 +114,8 @@ export const Step5Strategy: React.FC = () => {
               ) : (
                 <div className="space-y-3">
                   {strategyChoices.map((choice, index) => {
-                    const prodi = PRODI_LIST.find((p) => p.id === choice.prodiId);
-                    if (!prodi) return null;
-                    const ptn = PTN_LIST.find((p) => p.id === prodi.ptnId);
+                    const prodi = getProdiOrFallback(choice.prodiId);
+                    const ptn = findPtnById(prodi.ptnId) || PTN_LIST.find((p) => p.id === prodi.ptnId);
                     const assessment = assessTargetProdi(profile, prodi, choice.jalur, whatIfSkorTryout);
                     const kategori: CategoryScore = assessment.penilaian?.kategori || 'BELUM_ADA_ACUAN';
 
@@ -322,8 +321,7 @@ export const Step5Strategy: React.FC = () => {
                 </span>
                 <div className="space-y-1.5">
                   {strategyChoices.map((c) => {
-                    const prodi = PRODI_LIST.find((p) => p.id === c.prodiId);
-                    if (!prodi) return null;
+                    const prodi = getProdiOrFallback(c.prodiId);
                     const assessment = assessTargetProdi(profile, prodi, c.jalur, whatIfSkorTryout);
                     const cat: CategoryScore = assessment.penilaian?.kategori || 'BELUM_ADA_ACUAN';
                     return (

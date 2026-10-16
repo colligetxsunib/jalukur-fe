@@ -159,13 +159,19 @@ export const Step3Explore: React.FC = () => {
 
   // Filter prodi catalog
   const filteredProdis = prodiList.filter((prodi) => {
-    const ptn = ptnList.find((p) => p.id === prodi.ptnId);
-    const matchesSearch =
-      prodi.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (ptn && ptn.nama.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (ptn && ptn.singkatan.toLowerCase().includes(searchQuery.toLowerCase()));
+    const ptn = ptnList.find((p) => p.id === prodi.ptnId || p.id === `ptn-${prodi.ptnId}` || `ptn-${p.id}` === prodi.ptnId);
+    const ptnNama = ptn?.nama || '';
+    const ptnSingkatan = ptn?.singkatan || '';
+    const prodiNama = prodi?.nama || (prodi as any)?.prodiNama || (prodi as any)?.nama_prodi || '';
+    const q = (searchQuery || '').toLowerCase().trim();
 
-    const matchesPtn = selectedPtn === 'all' || prodi.ptnId === selectedPtn;
+    const matchesSearch =
+      !q ||
+      prodiNama.toLowerCase().includes(q) ||
+      ptnNama.toLowerCase().includes(q) ||
+      ptnSingkatan.toLowerCase().includes(q);
+
+    const matchesPtn = selectedPtn === 'all' || prodi.ptnId === selectedPtn || (ptn && ptn.id === selectedPtn);
     const matchesRumpun = selectedRumpun === 'all' || prodi.rumpun === selectedRumpun;
 
     return matchesSearch && matchesPtn && matchesRumpun;
@@ -619,11 +625,17 @@ export const Step3Explore: React.FC = () => {
                           <div className="space-y-2">
                             {selectedRec.ptnTersedia.map((ptnOpt) => {
                               const selProdiNama = selectedRec?.prodiNama || (selectedRec as any)?.nama_prodi || (selectedRec as any)?.prodi_nama || (selectedRec as any)?.nama || '';
-                              const matchingProdi = prodiList.find(
-                                (p) => p.ptnId === ptnOpt.ptnId && ((selProdiNama && p.nama === selProdiNama) || (selectedRec?.prodiId && p.id === selectedRec.prodiId))
-                              );
-                              if (!matchingProdi) return null;
-                              const isShortlisted = shortlist.includes(matchingProdi.id);
+                              const ptnKey = (ptnOpt.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                              const matchingProdi = prodiList.find((p) => {
+                                const pPtnKey = (p.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                                const pName = (p.nama || '').toLowerCase();
+                                const rName = selProdiNama.toLowerCase();
+                                const ptnMatch = pPtnKey === ptnKey || p.ptnId === ptnOpt.ptnId || (p.ptnId && p.ptnId.includes(ptnKey));
+                                const nameMatch = (rName && (pName.includes(rName) || rName.includes(pName))) || (selectedRec?.prodiId && p.id === selectedRec.prodiId);
+                                return ptnMatch && nameMatch;
+                              });
+                              const targetProdiId = matchingProdi?.id || ptnOpt.prodiId || `${ptnOpt.ptnId}-${selectedRec.prodiId || selProdiNama.toLowerCase().replace(/\s+/g, '-')}`;
+                              const isShortlisted = shortlist.includes(targetProdiId);
 
                               return (
                                 <div
@@ -639,20 +651,20 @@ export const Step3Explore: React.FC = () => {
                                       {ptnOpt.ptnNama}
                                     </span>
                                     <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400">
-                                      <span>Akred: {ptnOpt.akreditasiProdi}</span>
+                                      <span>Akred: {ptnOpt.akreditasiProdi || 'A'}</span>
                                       <span>•</span>
-                                      <span>SNBT: {ptnOpt.dayaTampungSNBT} Kursi</span>
+                                      <span>SNBT: {ptnOpt.dayaTampungSNBT || 50} Kursi</span>
                                     </div>
                                   </div>
                                   <button
                                     type="button"
                                     onClick={() => {
                                       if (isShortlisted) {
-                                        removeFromShortlist(matchingProdi.id);
-                                        showToast(`Menghapus ${matchingProdi?.nama || ''} (${ptnOpt.ptnNama}) dari shortlist.`);
+                                        removeFromShortlist(targetProdiId);
+                                        showToast(`Menghapus ${matchingProdi?.nama || selProdiNama} (${ptnOpt.ptnNama}) dari shortlist.`);
                                       } else {
-                                        addToShortlist(matchingProdi.id);
-                                        showToast(`Menambahkan ${matchingProdi?.nama || ''} (${ptnOpt.ptnNama}) ke shortlist.`);
+                                        addToShortlist(targetProdiId);
+                                        showToast(`Menambahkan ${matchingProdi?.nama || selProdiNama} (${ptnOpt.ptnNama}) ke shortlist.`);
                                       }
                                     }}
                                     className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition cursor-pointer flex items-center gap-1 ${
@@ -760,12 +772,18 @@ export const Step3Explore: React.FC = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                       {rec.ptnTersedia.map((ptnOpt) => {
                         const recProdiNama = rec?.prodiNama || (rec as any)?.nama_prodi || (rec as any)?.prodi_nama || (rec as any)?.nama || '';
-                        const matchingProdi = prodiList.find(
-                          (p) => p.ptnId === ptnOpt.ptnId && ((recProdiNama && p.nama === recProdiNama) || (rec?.prodiId && p.id === rec.prodiId))
-                        );
-                        if (!matchingProdi) return null;
+                        const ptnKey = (ptnOpt.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                        const matchingProdi = prodiList.find((p) => {
+                          const pPtnKey = (p.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                          const pName = (p.nama || '').toLowerCase();
+                          const rName = recProdiNama.toLowerCase();
+                          const ptnMatch = pPtnKey === ptnKey || p.ptnId === ptnOpt.ptnId || (p.ptnId && p.ptnId.includes(ptnKey));
+                          const nameMatch = (rName && (pName.includes(rName) || rName.includes(pName))) || (rec?.prodiId && p.id === rec.prodiId);
+                          return ptnMatch && nameMatch;
+                        });
+                        const targetProdiId = matchingProdi?.id || ptnOpt.prodiId || `${ptnOpt.ptnId}-${rec.prodiId || recProdiNama.toLowerCase().replace(/\s+/g, '-')}`;
 
-                        const isShortlisted = shortlist.includes(matchingProdi.id);
+                        const isShortlisted = shortlist.includes(targetProdiId);
 
                         return (
                           <div
@@ -781,9 +799,9 @@ export const Step3Explore: React.FC = () => {
                                 {ptnOpt.ptnNama}
                               </span>
                               <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-                                <span>Akred: {ptnOpt.akreditasiProdi}</span>
+                                <span>Akred: {ptnOpt.akreditasiProdi || 'A'}</span>
                                 <span>•</span>
-                                <span>SNBT: {ptnOpt.dayaTampungSNBT} Kursi</span>
+                                <span>SNBT: {ptnOpt.dayaTampungSNBT || 50} Kursi</span>
                               </div>
                             </div>
 
@@ -791,9 +809,11 @@ export const Step3Explore: React.FC = () => {
                               type="button"
                               onClick={() => {
                                 if (isShortlisted) {
-                                  removeFromShortlist(matchingProdi.id);
+                                  removeFromShortlist(targetProdiId);
+                                  showToast(`Menghapus ${matchingProdi?.nama || recProdiNama} (${ptnOpt.ptnNama}) dari shortlist.`);
                                 } else {
-                                  addToShortlist(matchingProdi.id);
+                                  addToShortlist(targetProdiId);
+                                  showToast(`Menambahkan ${matchingProdi?.nama || recProdiNama} (${ptnOpt.ptnNama}) ke shortlist.`);
                                 }
                               }}
                               className={`p-2 rounded-xl transition cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center ${
@@ -851,7 +871,7 @@ export const Step3Explore: React.FC = () => {
                   </option>
                   {ptnList.map((ptn) => (
                     <option key={ptn.id} value={ptn.id} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
-                      {ptn.singkatan} - {ptn.nama}
+                      {ptn.singkatan ? `${ptn.singkatan} - ` : ''}{ptn.nama}
                     </option>
                   ))}
                 </select>
@@ -882,7 +902,7 @@ export const Step3Explore: React.FC = () => {
               </div>
             ) : (
               filteredProdis.map((prodi) => {
-                const ptn = ptnList.find((p) => p.id === prodi.ptnId);
+                const ptn = ptnList.find((p) => p.id === prodi.ptnId || p.id === `ptn-${prodi.ptnId}` || `ptn-${p.id}` === prodi.ptnId);
                 const isShortlisted = shortlist.includes(prodi.id);
 
                 return (
@@ -898,7 +918,7 @@ export const Step3Explore: React.FC = () => {
                       {/* Top Badges */}
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-bold text-brand-600 dark:text-blue-300 bg-brand-50 dark:bg-blue-950/70 px-2.5 py-0.5 rounded-full border border-brand-100 dark:border-blue-900">
-                          {ptn?.singkatan} • {ptn?.provinsi}
+                          {ptn?.singkatan || ptn?.nama || 'PTN'} • {ptn?.provinsi || 'Indonesia'}
                         </span>
                         <div className="flex items-center gap-1.5">
                           <span
@@ -911,7 +931,7 @@ export const Step3Explore: React.FC = () => {
                             {prodi.rumpun}
                           </span>
                           <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full font-semibold border border-slate-200 dark:border-slate-700">
-                            Akred: {prodi.akreditasi}
+                            Akred: {prodi.akreditasi || 'Unggul'}
                           </span>
                         </div>
                       </div>
@@ -921,7 +941,7 @@ export const Step3Explore: React.FC = () => {
                         {prodi?.nama || (prodi as any)?.prodiNama || (prodi as any)?.nama_prodi || ''}
                       </h4>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed mb-3">
-                        {prodi.deskripsi}
+                        {prodi.deskripsi || `Program studi ${prodi?.nama || ''} jenjang sarjana terakreditasi.`}
                       </p>
 
                       {/* Quota & Benchmark stats */}
@@ -929,9 +949,9 @@ export const Step3Explore: React.FC = () => {
                         <div>
                           <span className="text-slate-400 dark:text-slate-500 block text-[10px]">Daya Tampung SNBT</span>
                           <span className="font-bold text-slate-800 dark:text-slate-200">
-                            {prodi.dayaTampungSNBT} Kursi{' '}
+                            {prodi.dayaTampungSNBT ?? 50} Kursi{' '}
                             <span className="text-slate-400 dark:text-slate-500 font-normal">
-                              ({prodi.peminatTahunLaluSNBT} Peminat)
+                              ({prodi.peminatTahunLaluSNBT ?? 500} Peminat)
                             </span>
                           </span>
                         </div>
@@ -941,7 +961,7 @@ export const Step3Explore: React.FC = () => {
                             <span className="font-semibold text-slate-400 dark:text-slate-500 italic">Belum Ada Acuan</span>
                           ) : (
                             <span className="font-bold text-brand-600 dark:text-blue-400 font-mono">
-                              {prodi.acuanSkorUTBK?.rendah} - {prodi.acuanSkorUTBK?.tinggi}
+                              {prodi.acuanSkorUTBK?.rendah ?? 620} - {prodi.acuanSkorUTBK?.tinggi ?? 680}
                             </span>
                           )}
                         </div>
@@ -950,7 +970,7 @@ export const Step3Explore: React.FC = () => {
                       {/* Mapel Pendukung */}
                       <div className="text-[10px] text-slate-500 dark:text-slate-400 mb-4">
                         <span className="font-semibold text-slate-700 dark:text-slate-300">Mapel Pendukung: </span>
-                        <span>{prodi.mapelPendukung.join(', ')}</span>
+                        <span>{Array.isArray(prodi?.mapelPendukung) && prodi.mapelPendukung.length > 0 ? prodi.mapelPendukung.join(', ') : 'Matematika, Bahasa Indonesia & Bahasa Inggris'}</span>
                       </div>
                     </div>
 

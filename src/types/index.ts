@@ -105,6 +105,7 @@ export interface ExploreRecommendation {
     dayaTampungSNBT: number;
     dayaTampungSNBP: number;
     akreditasiProdi: string;
+    prodiId?: string;
   }[];
 }
 

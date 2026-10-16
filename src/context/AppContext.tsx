@@ -85,8 +85,8 @@ const defaultProfile: StudentProfile = {
     bahasaInggris: 88,
   },
   trenNilai: "Naik",
-  peringkatParalel: 15,
-  totalSiswaAngkatan: 300,
+  peringkatParalel: undefined,
+  totalSiswaAngkatan: undefined,
   interestScores: {
     logikaKoding: 4,
     kesehatanBiologi: 2,
