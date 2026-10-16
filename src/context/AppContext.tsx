@@ -1,16 +1,13 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import {
-  ApiMode,
-  apiService,
-} from '../services/api';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { apiService } from "../services/api";
 import {
   DemoPersona,
   JalurType,
   SessionData,
   StudentProfile,
   StrategyChoice,
-} from '../types';
-import { DEMO_PERSONAS } from '../data/personas';
+} from "../types";
+import { DEMO_PERSONAS } from "../data/personas";
 
 export interface AppContextType {
   // Stepper
@@ -36,7 +33,11 @@ export interface AppContextType {
   // Strategy Choices (Urutan 1 - 4)
   strategyChoices: StrategyChoice[];
   setStrategyChoices: React.Dispatch<React.SetStateAction<StrategyChoice[]>>;
-  updateStrategyChoice: (urutan: number, prodiId: string, jalur: JalurType) => void;
+  updateStrategyChoice: (
+    urutan: number,
+    prodiId: string,
+    jalur: JalurType,
+  ) => void;
 
   // What-If Simulator Overrides
   whatIfSkorTryout: number | undefined;
@@ -45,17 +46,17 @@ export interface AppContextType {
 
   // AI Drawer state
   isAiDrawerOpen: boolean;
-  openAiDrawer: (context?: { prodiId?: string; jalur?: JalurType; initialQuestion?: string }) => void;
+  openAiDrawer: (context?: {
+    prodiId?: string;
+    jalur?: JalurType;
+    initialQuestion?: string;
+  }) => void;
   closeAiDrawer: () => void;
-  aiDrawerContext: { prodiId?: string; jalur?: JalurType; initialQuestion?: string } | null;
-
-  // API mode & URL
-  apiMode: ApiMode;
-  setApiMode: (mode: ApiMode) => void;
-  backendUrl: string;
-  setBackendUrl: (url: string) => void;
-  isBackendHealthy: boolean | null;
-  checkBackendHealth: () => Promise<void>;
+  aiDrawerContext: {
+    prodiId?: string;
+    jalur?: JalurType;
+    initialQuestion?: string;
+  } | null;
 
   // Personas
   loadPersona: (personaKey: keyof typeof DEMO_PERSONAS) => void;
@@ -69,8 +70,8 @@ export interface AppContextType {
 
 const defaultProfile: StudentProfile = {
   tahunLulus: 2026,
-  provinsi: 'DKI Jakarta',
-  akreditasiSekolah: 'A',
+  provinsi: "DKI Jakarta",
+  akreditasiSekolah: "A",
   skorTryout: 620,
   nilaiRapor: {
     matematika: 88,
@@ -83,7 +84,7 @@ const defaultProfile: StudentProfile = {
     bahasaIndonesia: 86,
     bahasaInggris: 88,
   },
-  trenNilai: 'Naik',
+  trenNilai: "Naik",
   peringkatParalel: 15,
   totalSiswaAngkatan: 300,
   interestScores: {
@@ -94,25 +95,24 @@ const defaultProfile: StudentProfile = {
     sosialHukum: 2,
     rekayasaFisika: 3,
   },
-  interestTags: ['#LogikaKomputasi', '#ProblemSolving'],
-  freeStoryText: '',
+  interestTags: ["#LogikaKomputasi", "#ProblemSolving"],
+  freeStoryText: "",
   alumniDiterima: {},
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [session, setSession] = useState<SessionData | null>(null);
   const [profile, setProfile] = useState<StudentProfile>(defaultProfile);
   const [shortlist, setShortlist] = useState<string[]>([]);
   const [strategyChoices, setStrategyChoices] = useState<StrategyChoice[]>([]);
-  const [whatIfSkorTryout, setWhatIfSkorTryout] = useState<number | undefined>(undefined);
-
-  // API Mode
-  const [apiMode, setApiModeState] = useState<ApiMode>(apiService.getMode());
-  const [backendUrl, setBackendUrlState] = useState<string>(apiService.getBaseUrl());
-  const [isBackendHealthy, setIsBackendHealthy] = useState<boolean | null>(null);
+  const [whatIfSkorTryout, setWhatIfSkorTryout] = useState<number | undefined>(
+    undefined,
+  );
 
   // Persona
   const [activePersonaId, setActivePersonaId] = useState<string | null>(null);
@@ -140,9 +140,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Initial load from storage
   useEffect(() => {
     const init = async () => {
-      // Setup auto switch callback
-      apiService.setModeAutoSwitchCallback((newMode, reason) => {
-        setApiModeState(newMode);
+      // Auto-fallback notification: backend tak terjangkau → tampilkan toast.
+      // Mode global tidak diubah (dikunci dari .env); fallback bersifat per-panggilan.
+      apiService.setModeAutoSwitchCallback((_newMode, reason) => {
         showToast(reason);
       });
 
@@ -156,14 +156,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setProfile(existingProfile);
       }
 
-      const savedShortlist = localStorage.getItem('jalurku_shortlist');
+      const savedShortlist = localStorage.getItem("jalurku_shortlist");
       if (savedShortlist) {
         try {
           setShortlist(JSON.parse(savedShortlist));
         } catch {}
       }
 
-      const savedChoices = localStorage.getItem('jalurku_strategy_choices');
+      const savedChoices = localStorage.getItem("jalurku_strategy_choices");
       if (savedChoices) {
         try {
           setStrategyChoices(JSON.parse(savedChoices));
@@ -173,36 +173,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     init();
   }, []);
 
-  const setApiMode = (mode: ApiMode) => {
-    apiService.setMode(mode);
-    setApiModeState(mode);
-    showToast(
-      mode === 'live'
-        ? `Mode diubah ke Live Backend (${backendUrl})`
-        : 'Mode diubah ke Smart Fallback / Demo Deterministic'
-    );
-  };
-
-  const setBackendUrl = (url: string) => {
-    apiService.setBaseUrl(url);
-    setBackendUrlState(url);
-  };
-
-  const checkBackendHealth = async () => {
-    const res = await apiService.checkHealth();
-    setIsBackendHealthy(res.ok);
-    if (!res.ok) {
-      showToast(`Backend di ${backendUrl} tidak aktif. Smart Fallback tetap berjalan normal.`);
-    } else {
-      showToast(`Koneksi Backend di ${backendUrl} tersambung.`);
-    }
-  };
-
   const startGuestSession = async (consent: boolean): Promise<boolean> => {
     try {
       const sess = await apiService.createSession(consent);
       setSession(sess);
-      showToast('Sesi tamu dimulai secara aman. Data disimpan lokal.');
+      showToast("Sesi tamu dimulai secara aman. Data disimpan lokal.");
       return true;
     } catch {
       return false;
@@ -218,7 +193,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setActivePersonaId(null);
     setWhatIfSkorTryout(undefined);
     setCurrentStep(1);
-    showToast('Seluruh data sesi Anda berhasil dihapus.');
+    showToast("Seluruh data sesi Anda berhasil dihapus.");
   };
 
   const updateProfile = async (partial: Partial<StudentProfile>) => {
@@ -235,45 +210,58 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const addToShortlist = (prodiId: string): boolean => {
     if (shortlist.includes(prodiId)) return false;
     if (shortlist.length >= 4) {
-      showToast('Batas shortlist maksimal 4 prodi tercapai!');
+      showToast("Batas shortlist maksimal 4 prodi tercapai!");
       return false;
     }
     const updated = [...shortlist, prodiId];
     setShortlist(updated);
-    localStorage.setItem('jalurku_shortlist', JSON.stringify(updated));
+    localStorage.setItem("jalurku_shortlist", JSON.stringify(updated));
 
     // Also auto-initialize strategy choices if not yet populated
     if (strategyChoices.length < 4) {
       const nextUrutan = strategyChoices.length + 1;
-      const newChoices = [...strategyChoices, { urutan: nextUrutan, prodiId, jalur: 'SNBT' as JalurType }];
+      const newChoices = [
+        ...strategyChoices,
+        { urutan: nextUrutan, prodiId, jalur: "SNBT" as JalurType },
+      ];
       setStrategyChoices(newChoices);
-      localStorage.setItem('jalurku_strategy_choices', JSON.stringify(newChoices));
+      localStorage.setItem(
+        "jalurku_strategy_choices",
+        JSON.stringify(newChoices),
+      );
     }
-    showToast('Prodi ditambahkan ke Shortlist Target.');
+    showToast("Prodi ditambahkan ke Shortlist Target.");
     return true;
   };
 
   const removeFromShortlist = (prodiId: string) => {
     const updated = shortlist.filter((id) => id !== prodiId);
     setShortlist(updated);
-    localStorage.setItem('jalurku_shortlist', JSON.stringify(updated));
+    localStorage.setItem("jalurku_shortlist", JSON.stringify(updated));
 
     // Also remove from strategy choices and re-index
     const filteredChoices = strategyChoices
       .filter((c) => c.prodiId !== prodiId)
       .map((c, idx) => ({ ...c, urutan: idx + 1 }));
     setStrategyChoices(filteredChoices);
-    localStorage.setItem('jalurku_strategy_choices', JSON.stringify(filteredChoices));
+    localStorage.setItem(
+      "jalurku_strategy_choices",
+      JSON.stringify(filteredChoices),
+    );
   };
 
   const clearShortlist = () => {
     setShortlist([]);
     setStrategyChoices([]);
-    localStorage.removeItem('jalurku_shortlist');
-    localStorage.removeItem('jalurku_strategy_choices');
+    localStorage.removeItem("jalurku_shortlist");
+    localStorage.removeItem("jalurku_strategy_choices");
   };
 
-  const updateStrategyChoice = (urutan: number, prodiId: string, jalur: JalurType) => {
+  const updateStrategyChoice = (
+    urutan: number,
+    prodiId: string,
+    jalur: JalurType,
+  ) => {
     setStrategyChoices((prev) => {
       const existingIdx = prev.findIndex((c) => c.urutan === urutan);
       let updated: StrategyChoice[];
@@ -283,17 +271,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       } else {
         updated = [...prev, { urutan, prodiId, jalur }];
       }
-      localStorage.setItem('jalurku_strategy_choices', JSON.stringify(updated));
+      localStorage.setItem("jalurku_strategy_choices", JSON.stringify(updated));
       return updated;
     });
   };
 
   const resetWhatIf = () => {
     setWhatIfSkorTryout(undefined);
-    showToast('Simulator What-If direset ke skor profil asli.');
+    showToast("Simulator What-If direset ke skor profil asli.");
   };
 
-  const openAiDrawer = (context?: { prodiId?: string; jalur?: JalurType; initialQuestion?: string }) => {
+  const openAiDrawer = (context?: {
+    prodiId?: string;
+    jalur?: JalurType;
+    initialQuestion?: string;
+  }) => {
     setAiDrawerContext(context || null);
     setIsAiDrawerOpen(true);
   };
@@ -309,8 +301,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // Create session if not active
     if (!session) {
       const dummySession: SessionData = {
-        sessionId: 'sess_persona_' + p.id,
-        token: 'token_persona_' + p.id,
+        sessionId: "sess_persona_" + p.id,
+        token: "token_persona_" + p.id,
         consentAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         profileCompleted: true,
@@ -322,21 +314,31 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setProfile(p.profile);
     apiService.updateProfile(p.profile);
     setShortlist(p.shortlistProdiIds);
-    localStorage.setItem('jalurku_shortlist', JSON.stringify(p.shortlistProdiIds));
+    localStorage.setItem(
+      "jalurku_shortlist",
+      JSON.stringify(p.shortlistProdiIds),
+    );
 
     // Populate strategy choices for persona
-    const initialChoices: StrategyChoice[] = p.shortlistProdiIds.map((id, idx) => ({
-      urutan: idx + 1,
-      prodiId: id,
-      jalur: 'SNBT' as JalurType,
-    }));
+    const initialChoices: StrategyChoice[] = p.shortlistProdiIds.map(
+      (id, idx) => ({
+        urutan: idx + 1,
+        prodiId: id,
+        jalur: "SNBT" as JalurType,
+      }),
+    );
     setStrategyChoices(initialChoices);
-    localStorage.setItem('jalurku_strategy_choices', JSON.stringify(initialChoices));
+    localStorage.setItem(
+      "jalurku_strategy_choices",
+      JSON.stringify(initialChoices),
+    );
 
     setActivePersonaId(p.id);
     setWhatIfSkorTryout(undefined);
     setCurrentStep(p.preferredStep);
-    showToast(`Persona demo "${p.nama}" dimuat. Membuka Langkah ${p.preferredStep}.`);
+    showToast(
+      `Persona demo "${p.nama}" dimuat. Membuka Langkah ${p.preferredStep}.`,
+    );
   };
 
   return (
@@ -364,12 +366,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         openAiDrawer,
         closeAiDrawer,
         aiDrawerContext,
-        apiMode,
-        setApiMode,
-        backendUrl,
-        setBackendUrl,
-        isBackendHealthy,
-        checkBackendHealth,
         loadPersona,
         activePersonaId,
         toastMessage,
@@ -385,7 +381,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 export const useApp = () => {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error('useApp must be used within an AppProvider');
+    throw new Error("useApp must be used within an AppProvider");
   }
   return context;
 };

@@ -3,8 +3,8 @@ import { useApp } from '../context/AppContext';
 import { apiService } from '../services/api';
 import { AIQueryResponse } from '../types';
 import { PRODI_LIST, PTN_LIST } from '../data/catalog';
+import { BottomSheet } from './ui';
 import {
-  X,
   Sparkles,
   Send,
   ExternalLink,
@@ -113,7 +113,7 @@ export const AIDrawer: React.FC = () => {
 
   return (
     <>
-      {/* Floating Action Button for Steps 4, 5, 6 */}
+      {/* Floating Action Button for Steps 4, 5, 6 — zona jempol kanan-bawah, brand Grape */}
       {currentStep >= 4 && !isAiDrawerOpen && (
         <button
           type="button"
@@ -123,81 +123,98 @@ export const AIDrawer: React.FC = () => {
               initialQuestion: 'Bagaimana cara memaksimalkan peluang lolos dengan profil saya saat ini?',
             })
           }
-          className="no-print fixed bottom-6 right-5 sm:right-6 z-40 flex items-center gap-2.5 px-4 py-3 min-h-[48px] bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:to-indigo-800 text-white rounded-full shadow-xl shadow-blue-600/30 border border-white/20 transition-all hover:scale-105 active:scale-95 group"
+          style={{ bottom: 'calc(1.5rem + var(--safe-bottom))' }}
+          className="no-print fixed right-5 sm:right-6 lg:right-[calc(50%-280px+1.25rem)] z-40 flex items-center gap-2.5 px-4 py-3 min-h-[48px] bg-brand-500 hover:bg-brand-600 text-white rounded-full shadow-[3px_3px_0_0_var(--color-stroke)] border-2 border-[var(--color-stroke)] transition-[transform,background-color] duration-[160ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:scale-105 active:scale-95 group"
           title="Tanya Asisten AI Resmi"
         >
           <div className="relative">
             <Bot className="w-5 h-5 text-white" />
             <span className="absolute -top-1 -right-1 flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-lime opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-lime"></span>
             </span>
           </div>
           <span className="text-xs font-bold tracking-wide">Tanya AI (RAG Resmi)</span>
         </button>
       )}
 
-      {/* Slide-over Drawer Overlay */}
-      {isAiDrawerOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden">
-          <div
-            className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity duration-300"
-            onClick={closeAiDrawer}
-          />
-
-          <div className="fixed inset-y-0 right-0 max-w-full flex">
-            {/* Full width on mobile screens, max-md on tablets/desktop */}
-            <div className="w-screen max-w-full sm:max-w-md bg-white dark:bg-slate-900 shadow-2xl flex flex-col border-l border-slate-200 dark:border-slate-800 transition-colors duration-200">
-              {/* Drawer Header */}
-              <div className="px-5 py-4 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-white border-b border-slate-800">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 bg-blue-500/20 text-blue-300 rounded-xl border border-blue-500/30">
-                      <Sparkles className="w-4 h-4 text-blue-300" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-sm tracking-tight flex items-center gap-1.5">
-                        Asisten RAG SNPMB Resmi
-                      </h3>
-                      <p className="text-[11px] text-slate-300 dark:text-slate-400">
-                        Sitasi Dokumen BPPP & Penjelasan Keputusan
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={closeAiDrawer}
-                    className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 transition"
-                    title="Tutup Panel"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-
-                {/* Active Context Banner */}
-                {activeProdi ? (
-                  <div className="bg-indigo-900/60 dark:bg-slate-800/80 rounded-2xl p-2.5 border border-indigo-700/50 dark:border-slate-700 text-xs flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] text-indigo-300 dark:text-blue-300 block uppercase font-semibold">
-                        Konteks Aktif:
-                      </span>
-                      <span className="font-bold text-white text-xs">
-                        {activePtn?.singkatan} • {activeProdi.nama}
-                      </span>
-                    </div>
-                    <span className="px-2 py-0.5 text-[10px] font-bold bg-indigo-500/40 text-indigo-200 rounded-md border border-indigo-400/30">
-                      Jalur {aiDrawerContext?.jalur || 'SNBT'}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="bg-slate-800/60 dark:bg-slate-800/90 rounded-2xl px-3 py-2 text-[11px] text-slate-300 flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-blue-400 shrink-0" />
-                    <span>Konteks Umum Regulasi SNPMB (SNBP & SNBT)</span>
-                  </div>
-                )}
+      {/* AI Bottom Sheet (swipe-down to dismiss) */}
+      <BottomSheet
+        open={isAiDrawerOpen}
+        onClose={closeAiDrawer}
+        maxWidth={520}
+        className="h-[90dvh]"
+        header={
+          <div className="px-5 pb-3 pt-1">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-brand-100 dark:bg-brand-500/20 text-brand-600 dark:text-brand-200 rounded-xl">
+                <Sparkles className="w-4 h-4" />
               </div>
+              <div className="min-w-0">
+                <h3 className="font-display font-bold text-h3 text-slate-900 dark:text-slate-100 leading-tight">
+                  Asisten RAG SNPMB Resmi
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Sitasi Dokumen BPPP &amp; Penjelasan Keputusan
+                </p>
+              </div>
+            </div>
 
-              {/* Chat Message List */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/70 dark:bg-slate-950/60">
+            {/* Active Context Banner */}
+            {activeProdi ? (
+              <div className="bg-brand-50 dark:bg-slate-800/80 rounded-2xl p-2.5 border border-brand-200 dark:border-slate-700 text-xs flex items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <span className="text-[10px] text-brand-600 dark:text-brand-200 block uppercase font-semibold">
+                    Konteks Aktif:
+                  </span>
+                  <span className="font-bold text-slate-900 dark:text-white text-xs truncate block">
+                    {activePtn?.singkatan} • {activeProdi.nama}
+                  </span>
+                </div>
+                <span className="shrink-0 px-2 py-0.5 text-[10px] font-bold bg-brand-500/15 text-brand-700 dark:text-brand-200 rounded-md border border-brand-400/30">
+                  Jalur {aiDrawerContext?.jalur || 'SNBT'}
+                </span>
+              </div>
+            ) : (
+              <div className="bg-slate-100 dark:bg-slate-800/90 rounded-2xl px-3 py-2 text-[11px] text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-accent-sky shrink-0" />
+                <span>Konteks Umum Regulasi SNPMB (SNBP &amp; SNBT)</span>
+              </div>
+            )}
+          </div>
+        }
+        footer={
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
+            }}
+            className="flex gap-2"
+          >
+            <input
+              type="text"
+              value={inputQuestion}
+              onChange={(e) => setInputQuestion(e.target.value)}
+              placeholder={
+                activeProdi
+                  ? `Tanya alasan skor/syarat ${activeProdi.nama}...`
+                  : 'Ketik pertanyaan regulasi SNBP/SNBT...'
+              }
+              className="flex-1 text-base px-3.5 py-2.5 min-h-[48px] border-2 border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+            />
+            <button
+              type="submit"
+              disabled={loading || !inputQuestion.trim()}
+              className="px-4 py-2.5 min-h-[48px] min-w-[48px] bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white rounded-xl transition flex items-center justify-center shadow-soft shrink-0 cursor-pointer active:scale-95"
+              title="Kirim Pertanyaan"
+            >
+              <Send className="w-4 h-4" />
+            </button>
+          </form>
+        }
+      >
+        {/* Chat Message List */}
+        <div className="space-y-4 -mx-5 px-5 py-2">
                 {messages.length === 0 ? (
                   <div className="text-center py-6 px-3">
                     <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center mx-auto mb-3">
@@ -335,49 +352,15 @@ export const AIDrawer: React.FC = () => {
                   ))
                 )}
 
-                {loading && (
-                  <div className="flex items-center gap-2 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-bl-none max-w-[80%] text-xs text-slate-600 dark:text-slate-300">
-                    <div className="w-4 h-4 border-2 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin" />
-                    <span>Mencari rujukan dokumen regulasi resmi...</span>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-
-              {/* Drawer Input Box */}
-              <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    handleSend();
-                  }}
-                  className="flex gap-2"
-                >
-                  <input
-                    type="text"
-                    value={inputQuestion}
-                    onChange={(e) => setInputQuestion(e.target.value)}
-                    placeholder={
-                      activeProdi
-                        ? `Tanya alasan skor/syarat ${activeProdi.nama}...`
-                        : 'Ketik pertanyaan regulasi SNBP/SNBT...'
-                    }
-                    className="flex-1 text-base sm:text-xs px-3.5 py-2.5 min-h-[44px] border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                  />
-                  <button
-                    type="submit"
-                    disabled={loading || !inputQuestion.trim()}
-                    className="px-4 py-2.5 min-h-[44px] min-w-[44px] bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 text-white rounded-xl transition flex items-center justify-center shadow-xs shrink-0 cursor-pointer"
-                    title="Kirim Pertanyaan"
-                  >
-                    <Send className="w-4 h-4" />
-                  </button>
-                </form>
-              </div>
+          {loading && (
+            <div className="flex items-center gap-2 p-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-bl-none max-w-[80%] text-xs text-slate-600 dark:text-slate-300">
+              <div className="w-4 h-4 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
+              <span>Mencari rujukan dokumen regulasi resmi...</span>
             </div>
-          </div>
+          )}
+          <div ref={messagesEndRef} />
         </div>
-      )}
+      </BottomSheet>
     </>
   );
 };

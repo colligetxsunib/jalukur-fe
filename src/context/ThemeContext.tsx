@@ -17,15 +17,18 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setThemeState] = useState<ThemeMode>(() => {
     const saved = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
-    return saved === 'light' || saved === 'dark' || saved === 'system' ? saved : 'system';
+    // Light-first: default terang (desain hangat), bukan mengikuti preferensi gelap OS.
+    return saved === 'light' || saved === 'dark' || saved === 'system' ? saved : 'light';
   });
 
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => {
     if (typeof window === 'undefined') return 'light';
     const saved = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
     if (saved === 'dark') return 'dark';
-    if (saved === 'light') return 'light';
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    if (saved === 'system') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'light'; // default & tersimpan 'light'
   });
 
   useEffect(() => {
@@ -42,11 +45,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       }
 
+      // Kelas 'force-dark' selaras dengan @custom-variant dark di index.css (light-first).
       if (isDark) {
-        root.classList.add('dark');
+        root.classList.add('force-dark');
         setResolvedTheme('dark');
       } else {
-        root.classList.remove('dark');
+        root.classList.remove('force-dark');
         setResolvedTheme('light');
       }
     };

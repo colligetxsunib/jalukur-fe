@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { useApp } from '../../context/AppContext';
+import React, { useState } from "react";
+import { useApp } from "../../context/AppContext";
+import { BentoCard, Button } from "../ui";
+import { DEV_TOOLS } from "../../lib/env";
 import {
   ShieldCheck,
   Compass,
@@ -7,9 +9,8 @@ import {
   Sliders,
   CheckCircle2,
   Sparkles,
-  Users,
   Target,
-} from 'lucide-react';
+} from "lucide-react";
 
 export const Step1Session: React.FC = () => {
   const { session, startGuestSession, setCurrentStep, loadPersona } = useApp();
@@ -26,197 +27,221 @@ export const Step1Session: React.FC = () => {
     }
   };
 
+  const pillars = [
+    {
+      icon: Compass,
+      accent: "brand" as const,
+      title: "Rekomendasi Minat & Rapor",
+      desc: "50% kecocokan minat + 50% kesesuaian nilai mapel pendukung.",
+    },
+    {
+      icon: ShieldCheck,
+      accent: "safe" as const,
+      title: "Pengecekan Syarat Gate",
+      desc: "Filter mutlak tahun lulus & kuota sekolah sebelum hitung peluang.",
+    },
+    {
+      icon: Target,
+      accent: "match" as const,
+      title: "Penilaian Safe/Match/Reach",
+      desc: "Pemetaan skor UTBK ke sebaran acuan, tanpa persentase semu.",
+    },
+    {
+      icon: Sliders,
+      accent: "coral" as const,
+      title: "Simulator What-If",
+      desc: "Geser skor tryout real-time, evaluasi 4 pilihan prodi langsung.",
+    },
+  ];
+
+  const personas = [
+    {
+      id: "skenario_a" as const,
+      name: "Rani",
+      tag: "Eksplorasi",
+      tagClass:
+        "bg-brand-100 text-brand-700 dark:bg-brand-500/15 dark:text-brand-200",
+      desc: "Belum punya target. Rapor 88,5, minat koding & sains.",
+      accent: "brand" as const,
+    },
+    {
+      id: "skenario_b" as const,
+      name: "Dimas",
+      tag: "Target 3 Prodi",
+      tagClass: "bg-match/10 text-match border border-match/20",
+      desc: "Target UI TI, ITB TI, UGM Ilkom. UTBK 620.",
+      accent: "match" as const,
+    },
+    {
+      id: "skenario_tepi" as const,
+      name: "Kasus Tepi",
+      tag: "Gugur Gate",
+      tagClass: "bg-danger/10 text-danger border border-danger/20",
+      desc: "Lulusan 2022 (>3 th). Uji sistem mutlak gugur Gate.",
+      accent: "danger" as const,
+    },
+  ];
+
   return (
-    <div className="max-w-5xl mx-auto py-4 sm:py-8 px-4 sm:px-6">
-      {/* Hero Section */}
-      <div className="text-center max-w-3xl mx-auto mb-10 pt-2 sm:pt-4">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-200/80 dark:border-blue-800/80 text-blue-700 dark:text-blue-300 text-xs font-semibold mb-5 shadow-2xs">
-          <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-          <span>Platform Decision Support Resmi untuk Siswa SMA Kelas 12</span>
-        </div>
-        <h1 className="text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight sm:leading-tight mb-4">
-          Bukan Sekadar Chatbot, Ini{' '}
-          <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 dark:from-blue-400 dark:via-indigo-300 dark:to-sky-300 bg-clip-text text-transparent">
-            Decision Support
-          </span>{' '}
-          Strategi SNBP & SNBT Anda
-        </h1>
-        <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
-          Hindari tebak-tebakan semu. Dapatkan analisis kelayakan deterministik berdasarkan regulasi mutlak
-          (Gate), data acuan empiris siklus sebelumnya, dan simulator skenario What-If real-time.
-        </p>
-      </div>
-
-      {/* Feature 4-Pillar Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs hover:shadow-md transition">
-          <div className="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-3">
-            <Compass className="w-5 h-5" />
+    <>
+      {/* pb besar agar konten tak tertutup sticky CTA di bawah */}
+      <div className="w-full pb-40 lg:pb-0">
+        {/* Hero */}
+        <div className="text-center max-w-3xl mx-auto mb-8 pt-2 sm:pt-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-50 dark:bg-brand-500/15 border border-brand-200 dark:border-brand-500/30 text-brand-700 dark:text-brand-200 text-xs font-semibold mb-5">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Decision Support SNBP &amp; SNBT buat anak SMA</span>
           </div>
-          <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Rekomendasi Minat & Rapor</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            Formula deterministik 50% kecocokan minat + 50% kesesuaian nilai mata pelajaran pendukung.
+          <h1 className="font-display text-3xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-[1.1] mb-4">
+            Berhenti nebak-nebak.{" "}
+            <span className="text-brand-600 dark:text-brand-200">
+              Susun strategimu
+            </span>{" "}
+            dengan data.
+          </h1>
+          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto">
+            Bukan ramalan, bukan katanya. Peluangmu dihitung dari aturan resmi
+            dan data nyata &mdash; dan kamu bisa utak-atik tiap pilihan sampai
+            pas. Gratis, transparan, anonim.
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs hover:shadow-md transition">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
-          <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Pengecekan Syarat Gate</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            Filter mutlak tahun kelulusan dan legalitas kuota sekolah sebelum menghitung kategori peluang.
-          </p>
+        {/* 4-Pillar Bento Grid (2 kolom di mobile — thumb-friendly) */}
+        <div className="grid grid-cols-2 gap-3 mb-8">
+          {pillars.map((p) => {
+            const Icon = p.icon;
+            const iconColor = {
+              brand:
+                "bg-brand-100 text-brand-600 dark:bg-brand-500/20 dark:text-brand-200",
+              safe: "bg-safe/10 text-safe",
+              match: "bg-match/10 text-match",
+              coral: "bg-accent-coral/10 text-accent-coral",
+            }[p.accent];
+            return (
+              <BentoCard key={p.title} variant="feature" accent={p.accent}>
+                <div
+                  className={`w-10 h-10 rounded-2xl flex items-center justify-center mb-3 ${iconColor}`}
+                >
+                  <Icon className="w-5 h-5" />
+                </div>
+                <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1 leading-tight">
+                  {p.title}
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                  {p.desc}
+                </p>
+              </BentoCard>
+            );
+          })}
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs hover:shadow-md transition">
-          <div className="w-10 h-10 rounded-2xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3">
-            <Target className="w-5 h-5" />
+        {/* Consent — ringkas, 1 ketuk */}
+        <BentoCard
+          variant="feature"
+          accent="brand"
+          className="max-w-2xl mx-auto mb-8"
+        >
+          <div className="flex items-center gap-3 mb-3">
+            <div className="p-2.5 bg-brand-50 dark:bg-brand-500/20 text-brand-600 dark:text-brand-200 rounded-2xl">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                Sesi Tamu Anonim
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Tanpa daftar. Data terhapus otomatis dalam 24 jam (UU PDP).
+              </p>
+            </div>
           </div>
-          <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Penilaian Safe/Match/Reach</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            Pemetaan empiris skor UTBK terhadap sebaran nilai acuan, tanpa klaim persentase kelulusan semu.
-          </p>
-        </div>
-
-        <div className="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xs hover:shadow-md transition">
-          <div className="w-10 h-10 rounded-2xl bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-3">
-            <Sliders className="w-5 h-5" />
-          </div>
-          <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-1">Simulator What-If Interaktif</h3>
-          <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-            Uji kenaikan skor tryout secara real-time dan evaluasi keseimbangan 4 pilihan prodi Anda.
-          </p>
-        </div>
-      </div>
-
-      {/* Main Consent & Start Guest Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-lg p-6 sm:p-8 max-w-2xl mx-auto mb-12 transition-colors duration-200">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2.5 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 rounded-2xl border border-blue-100 dark:border-blue-900">
-            <ShieldCheck className="w-6 h-6" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Mulai Sesi Tamu Terenkripsi</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Sesuai dengan ketentuan Undang-Undang Perlindungan Data Pribadi (UU PDP)
-            </p>
-          </div>
-        </div>
-
-        {/* Privacy Consent Box (Fixed styling for dark mode readability) */}
-        <div className="bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700/80 rounded-xl p-4 mb-6 transition-colors duration-200">
-          <label className="flex items-start gap-3 cursor-pointer select-none">
+          <label className="flex items-start gap-3 cursor-pointer select-none bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl p-3.5">
             <input
               type="checkbox"
               checked={consentChecked}
               onChange={(e) => setConsentChecked(e.target.checked)}
-              className="mt-1 w-5 h-5 min-w-[20px] text-blue-600 rounded border-slate-300 dark:border-slate-600 dark:bg-slate-700 focus:ring-blue-500 cursor-pointer"
+              className="mt-0.5 w-5 h-5 min-w-[20px] accent-brand-500 rounded cursor-pointer"
             />
             <span className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-              <strong className="font-semibold text-slate-900 dark:text-white block mb-0.5">
-                Persetujuan Eksplisit Sesi Tamu (UU PDP):
-              </strong>
-              "Saya menyetujui penggunaan data profil akademik secara anonim untuk simulasi sesi ini (data
-              tidak menyertakan identitas sensitif seperti nama lengkap/NIK dan otomatis terhapus dalam 24 jam
-              atau saat tombol <em>Hapus Data</em> diklik)."
+              Aku setuju data profil akademikku dipakai anonim untuk simulasi
+              sesi ini (tanpa nama/NIK), dan bisa kuhapus kapan saja lewat
+              tombol <em>Hapus Data</em>.
             </span>
           </label>
-        </div>
+        </BentoCard>
 
-        {/* Start Button */}
-        {session ? (
-          <div className="space-y-3">
-            <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs rounded-2xl flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-              <span>Sesi tamu aktif (Token terdaftar). Anda dapat langsung melanjutkan ke pengisian profil.</span>
+        {/* Persona demo — DEV ONLY (hilang di production) */}
+        {DEV_TOOLS && (
+          <div className="max-w-3xl mx-auto">
+            <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3 text-center">
+              Atau coba cepat pakai persona demo
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {personas.map((p) => (
+                <BentoCard
+                  key={p.id}
+                  accent={p.accent}
+                  onClick={() => loadPersona(p.id)}
+                >
+                  <div className="flex items-center justify-between mb-1.5 gap-2">
+                    <span className="font-bold text-xs text-slate-900 dark:text-white truncate">
+                      {p.name}
+                    </span>
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded-full font-semibold shrink-0 ${p.tagClass}`}
+                    >
+                      {p.tag}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
+                    {p.desc}
+                  </p>
+                </BentoCard>
+              ))}
             </div>
-            <button
-              type="button"
-              onClick={() => setCurrentStep(2)}
-              className="w-full py-3.5 min-h-[48px] bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-2xl font-bold text-sm shadow-md shadow-blue-600/20 transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
-            >
-              <span>Lanjut ke Langkah 2: Profil & Minat</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
           </div>
-        ) : (
-          <button
-            type="button"
-            disabled={!consentChecked || isSubmitting}
-            onClick={handleStartSession}
-            className="w-full py-3.5 min-h-[48px] bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 text-white rounded-2xl font-bold text-sm shadow-md shadow-blue-600/20 transition flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]"
-          >
-            <span>{isSubmitting ? 'Memulai Sesi...' : 'Mulai Sesi Tamu Sekarang'}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
         )}
       </div>
 
-      {/* Quick Test Demo Scenarios */}
-      <div className="max-w-3xl mx-auto">
-        <div className="flex items-center gap-2 mb-4 justify-center">
-          <Users className="w-4 h-4 text-slate-400 dark:text-slate-500" />
-          <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-            Atau Uji Coba Cepat dengan Persona Demo (1-Klik)
-          </h4>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <button
-            type="button"
-            onClick={() => loadPersona('skenario_a')}
-            className="p-4 bg-white dark:bg-slate-800/90 hover:bg-blue-50/40 dark:hover:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700/80 hover:border-blue-300 dark:hover:border-blue-600 text-left transition group shadow-2xs cursor-pointer active:scale-[0.99]"
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="font-bold text-xs text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                Skenario A: Rani
-              </span>
-              <span className="text-[10px] bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full font-semibold">
-                Eksplorasi
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-              Belum punya target. Rapor 88,5, minat koding & sains. Menguji fitur Top 5 rekomendasi.
-            </p>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => loadPersona('skenario_b')}
-            className="p-4 bg-white dark:bg-slate-800/90 hover:bg-blue-50/40 dark:hover:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700/80 hover:border-blue-300 dark:hover:border-blue-600 text-left transition group shadow-2xs cursor-pointer active:scale-[0.99]"
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="font-bold text-xs text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                Skenario B: Dimas
-              </span>
-              <span className="text-[10px] bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full font-semibold">
-                Target 3 Prodi
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-              Sudah punya target: UI TI, ITB TI, UGM Ilkom. UTBK 620. Menguji analisis Gate & What-If.
-            </p>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => loadPersona('skenario_tepi')}
-            className="p-4 bg-white dark:bg-slate-800/90 hover:bg-rose-50/40 dark:hover:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700/80 hover:border-rose-300 dark:hover:border-rose-600 text-left transition group shadow-2xs cursor-pointer active:scale-[0.99]"
-          >
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="font-bold text-xs text-rose-900 dark:text-rose-300 group-hover:text-rose-700">
-                Skenario Tepi
-              </span>
-              <span className="text-[10px] bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded-full font-semibold">
-                Gugur Gate
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
-              Lulusan 2022 (&gt;3 tahun). Menguji ketahanan sistem mutlak: otomatis gugur pada Gate SNBT.
-            </p>
-          </button>
+      {/* CTA — sticky-bottom di mobile (zona jempol); inline mengikuti konten di desktop */}
+      <div
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-[color-mix(in_srgb,var(--color-stroke)_14%,transparent)] bg-[color-mix(in_srgb,var(--color-cream-card)_94%,transparent)] backdrop-blur-md lg:static lg:border-0 lg:bg-transparent lg:backdrop-blur-none lg:mt-6"
+        style={{ paddingBottom: "calc(0.75rem + var(--safe-bottom))" }}
+      >
+        <div className="w-full px-4 pt-3 lg:px-0 lg:pt-0">
+          {session ? (
+            <>
+              <div className="mb-2.5 flex items-center gap-2 text-xs text-safe">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>Sesi tamu aktif. Lanjut isi profil kamu.</span>
+              </div>
+              <Button
+                variant="primary"
+                brutal
+                block
+                size="lg"
+                rightIcon={<ArrowRight className="w-4 h-4" />}
+                onClick={() => setCurrentStep(2)}
+              >
+                Lanjut: Profil &amp; Minat
+              </Button>
+            </>
+          ) : (
+            <Button
+              variant="volt"
+              brutal
+              block
+              size="lg"
+              loading={isSubmitting}
+              loadingText="Memulai sesi…"
+              disabled={!consentChecked}
+              rightIcon={<ArrowRight className="w-4 h-4" />}
+              onClick={handleStartSession}
+            >
+              Mulai Sekarang
+            </Button>
+          )}
         </div>
       </div>
-    </div>
+    </>
   );
 };

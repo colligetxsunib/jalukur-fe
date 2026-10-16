@@ -2,6 +2,9 @@ import React, { useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { PRODI_LIST, PTN_LIST } from '../../data/catalog';
 import { assessTargetProdi, calculateRaporAverage } from '../../services/engine';
+import { Button } from '../ui';
+import { haptic, HAPTIC } from '../../lib/haptics';
+import { prefersReducedMotion } from '../../lib/motion';
 import {
   Printer,
   CheckSquare,
@@ -16,14 +19,12 @@ import confetti from 'canvas-confetti';
 export const Step6Summary: React.FC = () => {
   const { profile, strategyChoices, whatIfSkorTryout, setCurrentStep } = useApp();
 
-  // Trigger celebration confetti on landing in Step 6
+  // Momen perayaan: confetti + haptic saat tiba di ringkasan final (hormati reduced-motion)
   useEffect(() => {
+    if (prefersReducedMotion()) return;
     try {
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 },
-      });
+      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+      haptic(HAPTIC.success);
     } catch {}
   }, []);
 
@@ -59,34 +60,31 @@ export const Step6Summary: React.FC = () => {
   );
 
   return (
-    <div className="max-w-4xl mx-auto py-6 sm:py-10 px-4 sm:px-6 pb-24 print:p-0 print:m-0 print:max-w-none print:w-full">
+    <div className="w-full pb-24 lg:pb-0 print:p-0 print:m-0 print:max-w-none print:w-full">
       {/* Action Bar (Hidden during print) */}
       <div className="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-            Langkah 6: Ringkasan Strategi & Dokumen Rencana Akhir
+          <h2 className="font-display text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+            Ringkasan Strategi &amp; Dokumen Final
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Dokumen resmi siap cetak/simpan PDF sebagai panduan persiapan pendaftaran Anda.
+            Dokumen siap cetak/simpan PDF (1 halaman A4) sebagai panduan persiapanmu.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setCurrentStep(5)}
-            className="px-4 py-3 min-h-[44px] bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-2xl font-bold text-xs transition cursor-pointer"
-          >
+          <Button variant="secondary" size="md" onClick={() => setCurrentStep(5)}>
             Ubah Strategi
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant="primary"
+            brutal
+            size="md"
+            leftIcon={<Printer className="w-4 h-4" />}
             onClick={handlePrint}
-            className="px-5 py-3 min-h-[44px] bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white rounded-2xl font-bold text-xs shadow-md shadow-blue-600/20 transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
           >
-            <Printer className="w-4 h-4" />
-            <span>Cetak / Simpan PDF</span>
-          </button>
+            Cetak / Simpan PDF
+          </Button>
         </div>
       </div>
 
@@ -95,7 +93,7 @@ export const Step6Summary: React.FC = () => {
         {/* Document Header */}
         <div className="border-b border-slate-200 dark:border-slate-800 pb-6 print:pb-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 print:gap-2">
           <div className="flex items-center gap-3 print:gap-2">
-            <div className="w-12 h-12 print:w-8 print:h-8 rounded-2xl print:rounded-lg bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center font-extrabold text-lg print:text-xs shadow-sm shrink-0">
+            <div className="w-12 h-12 print:w-8 print:h-8 rounded-2xl print:rounded-lg bg-brand-500 text-white flex items-center justify-center font-extrabold text-lg print:text-xs shadow-sm shrink-0">
               JK
             </div>
             <div>

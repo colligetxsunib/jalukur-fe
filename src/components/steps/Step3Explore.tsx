@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { apiService } from '../../services/api';
 import { ExploreRecommendation, Prodi, PTN } from '../../types';
+import { Button } from '../ui';
 import {
   Compass,
   Search,
@@ -177,14 +178,14 @@ export const Step3Explore: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-6 sm:py-10 px-4 sm:px-6 pb-32">
+    <div className="w-full pb-32 lg:pb-0">
       {/* Step Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-          Langkah 3: Tentukan Target Pilihan Prodi
+        <h2 className="font-display text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+          Tentukan Target Prodi
         </h2>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-          Gunakan eksplorasi rekomendasi berbasis AI & nilai rapor, atau jelajahi katalog resmi 10 PTN terkemuka.
+          Eksplorasi rekomendasi berbasis minat &amp; rapor, atau jelajahi katalog 10 PTN.
         </p>
       </div>
 
@@ -195,13 +196,13 @@ export const Step3Explore: React.FC = () => {
           onClick={() => setActiveMode('explore')}
           className={`p-5 rounded-3xl border text-left transition flex items-start gap-4 cursor-pointer ${
             activeMode === 'explore'
-              ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-950/40 dark:border-blue-500 ring-2 ring-blue-500/20 shadow-xs'
+              ? 'border-brand-500 bg-blue-50/50 dark:bg-blue-950/40 dark:border-brand-500 ring-2 ring-blue-500/20 shadow-xs'
               : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'
           }`}
         >
           <div
             className={`p-3 rounded-2xl shrink-0 ${
-              activeMode === 'explore' ? 'bg-blue-600 text-white dark:bg-blue-500' : 'bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300'
+              activeMode === 'explore' ? 'bg-brand-500 text-white dark:bg-brand-500' : 'bg-brand-100 dark:bg-blue-950 text-brand-600 dark:text-blue-300'
             }`}
           >
             <Sparkles className="w-6 h-6" />
@@ -212,7 +213,7 @@ export const Step3Explore: React.FC = () => {
                 Belum Punya Target? (Eksplorasi Jurusan)
               </span>
               {activeMode === 'explore' && (
-                <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-600 dark:bg-blue-500 text-white rounded-md">
+                <span className="px-2 py-0.5 text-[10px] font-bold bg-brand-500 dark:bg-brand-500 text-white rounded-md">
                   Aktif
                 </span>
               )}
@@ -229,13 +230,13 @@ export const Step3Explore: React.FC = () => {
           onClick={() => setActiveMode('catalog')}
           className={`p-5 rounded-3xl border text-left transition flex items-start gap-4 cursor-pointer ${
             activeMode === 'catalog'
-              ? 'border-blue-600 bg-blue-50/50 dark:bg-blue-950/40 dark:border-blue-500 ring-2 ring-blue-500/20 shadow-xs'
+              ? 'border-brand-500 bg-blue-50/50 dark:bg-blue-950/40 dark:border-brand-500 ring-2 ring-blue-500/20 shadow-xs'
               : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-300 dark:hover:border-slate-700'
           }`}
         >
           <div
             className={`p-3 rounded-2xl shrink-0 ${
-              activeMode === 'catalog' ? 'bg-blue-600 text-white dark:bg-blue-500' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+              activeMode === 'catalog' ? 'bg-brand-500 text-white dark:bg-brand-500' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
             }`}
           >
             <Compass className="w-6 h-6" />
@@ -246,7 +247,7 @@ export const Step3Explore: React.FC = () => {
                 Sudah Punya Target? (Katalog PTN & Prodi)
               </span>
               {activeMode === 'catalog' && (
-                <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-600 dark:bg-blue-500 text-white rounded-md">
+                <span className="px-2 py-0.5 text-[10px] font-bold bg-brand-500 dark:bg-brand-500 text-white rounded-md">
                   Aktif
                 </span>
               )}
@@ -272,11 +273,11 @@ export const Step3Explore: React.FC = () => {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5 pb-3.5 border-b border-slate-100 dark:border-slate-800">
                 <div>
                   <h3 className="font-bold text-sm sm:text-base text-slate-900 dark:text-white flex items-center gap-2">
-                    <Layers className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <Layers className="w-5 h-5 text-brand-500 dark:text-blue-400" />
                     <span>Matriks Kecocokan Minat x Kelayakan Akademis (2D Grid)</span>
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    Formula deterministik: <code className="font-mono text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-1.5 py-0.5 rounded">0.5 * kemiripan_minat + 0.5 * kesesuaian_nilai</code>.
+                    Formula deterministik: <code className="font-mono text-brand-500 dark:text-blue-400 bg-brand-50 dark:bg-blue-950/60 px-1.5 py-0.5 rounded">0.5 * kemiripan_minat + 0.5 * kesesuaian_nilai</code>.
                   </p>
                 </div>
                 <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full self-start">
@@ -290,7 +291,7 @@ export const Step3Explore: React.FC = () => {
                 <div className="lg:col-span-7 space-y-3">
                   {/* Sumbu Y Badge (Atas Luar) */}
                   <div className="flex items-center justify-between px-1">
-                    <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/70 px-3 py-1 rounded-xl border border-blue-200 dark:border-blue-900/60 shadow-2xs">
+                    <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-brand-600 dark:text-blue-300 bg-brand-50 dark:bg-blue-950/70 px-3 py-1 rounded-xl border border-blue-200 dark:border-blue-900/60 shadow-2xs">
                       <span>↑ Sumbu Y: Kesesuaian Nilai Rapor (0 - 100)</span>
                     </div>
                     <span className="text-[11px] text-slate-400 dark:text-slate-500 italic hidden sm:inline">
@@ -304,7 +305,7 @@ export const Step3Explore: React.FC = () => {
                     <div className="flex flex-col justify-between py-2 text-[10px] sm:text-[11px] font-mono text-slate-400 dark:text-slate-500 select-none text-right shrink-0 w-10 sm:w-12">
                       <span>100</span>
                       <span>75</span>
-                      <span className="font-bold text-blue-600 dark:text-blue-400 text-[9px] sm:text-[10px]">50 (Ambang)</span>
+                      <span className="font-bold text-brand-500 dark:text-blue-400 text-[9px] sm:text-[10px]">50 (Ambang)</span>
                       <span>25</span>
                       <span>0</span>
                     </div>
@@ -401,17 +402,17 @@ export const Step3Explore: React.FC = () => {
                               type="button"
                               className={`transition-all duration-200 cursor-pointer whitespace-nowrap ${
                                 isSelected
-                                  ? 'scale-105 bg-blue-600 text-white dark:bg-blue-500 ring-4 ring-blue-500/30 shadow-lg px-2.5 sm:px-3 py-1.5 rounded-full flex items-center gap-1.5 font-bold text-[11px] sm:text-xs'
-                                  : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-2 border-blue-500 dark:border-blue-400 shadow-md hover:scale-105 px-2 sm:px-2.5 py-1 rounded-full flex items-center gap-1.5 font-semibold text-[10px] sm:text-xs'
+                                  ? 'scale-105 bg-brand-500 text-white dark:bg-brand-500 ring-4 ring-blue-500/30 shadow-lg px-2.5 sm:px-3 py-1.5 rounded-full flex items-center gap-1.5 font-bold text-[11px] sm:text-xs'
+                                  : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-2 border-brand-500 dark:border-blue-400 shadow-md hover:scale-105 px-2 sm:px-2.5 py-1 rounded-full flex items-center gap-1.5 font-semibold text-[10px] sm:text-xs'
                               }`}
                               title={`${p.prodiNama} (Minat: ${p.rawX}%, Nilai: ${p.rawY}%, Total: ${p.skorTotal}%)`}
                             >
                               <span
                                 className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center font-extrabold text-[10px] shrink-0 ${
                                   isSelected
-                                    ? 'bg-white text-blue-700 dark:text-blue-600'
+                                    ? 'bg-white text-brand-600 dark:text-brand-500'
                                     : p.rank === 1
-                                    ? 'bg-blue-600 text-white dark:bg-blue-500'
+                                    ? 'bg-brand-500 text-white dark:bg-brand-500'
                                     : 'bg-indigo-600 text-white dark:bg-indigo-500'
                                 }`}
                               >
@@ -432,7 +433,7 @@ export const Step3Explore: React.FC = () => {
                     <div className="flex-1 flex justify-between px-2 text-[10px] sm:text-[11px] font-mono text-slate-400 dark:text-slate-500 select-none">
                       <span>0</span>
                       <span>25</span>
-                      <span className="font-bold text-blue-600 dark:text-blue-400 text-[9px] sm:text-[10px]">50 (Ambang)</span>
+                      <span className="font-bold text-brand-500 dark:text-blue-400 text-[9px] sm:text-[10px]">50 (Ambang)</span>
                       <span>75</span>
                       <span>100</span>
                     </div>
@@ -443,7 +444,7 @@ export const Step3Explore: React.FC = () => {
                     <span className="text-[11px] text-slate-500 dark:text-slate-400 leading-snug">
                       Semakin condong ke kanan atas, jurusan semakin selaras minat & nilai rapor.
                     </span>
-                    <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/70 px-3 py-1 rounded-xl border border-blue-200 dark:border-blue-900/60 shadow-2xs shrink-0 ml-2">
+                    <div className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs font-bold text-brand-600 dark:text-blue-300 bg-brand-50 dark:bg-blue-950/70 px-3 py-1 rounded-xl border border-blue-200 dark:border-blue-900/60 shadow-2xs shrink-0 ml-2">
                       <span>Sumbu X: Kecocokan Minat (0 - 100) →</span>
                     </div>
                   </div>
@@ -461,7 +462,7 @@ export const Step3Explore: React.FC = () => {
                           onClick={() => setSelectedRecIndex(idx)}
                           className={`px-2.5 py-1 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer flex items-center gap-1.5 ${
                             selectedRecIndex === idx
-                              ? 'bg-blue-600 text-white shadow-2xs'
+                              ? 'bg-brand-500 text-white shadow-2xs'
                               : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                           }`}
                         >
@@ -485,7 +486,7 @@ export const Step3Explore: React.FC = () => {
                         {/* Inspector Header Tabs */}
                         <div className="flex items-center justify-between gap-1 pb-3 border-b border-slate-200 dark:border-slate-700">
                           <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                            <Target className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                            <Target className="w-4 h-4 text-brand-500 dark:text-blue-400" />
                             <span>Inspektor Jurusan Aktif</span>
                           </span>
                           <div className="flex items-center gap-1">
@@ -496,7 +497,7 @@ export const Step3Explore: React.FC = () => {
                                 onClick={() => setSelectedRecIndex(idx)}
                                 className={`w-6 h-6 rounded-lg text-xs font-extrabold transition cursor-pointer flex items-center justify-center ${
                                   selectedRecIndex === idx
-                                    ? 'bg-blue-600 text-white shadow-xs'
+                                    ? 'bg-brand-500 text-white shadow-xs'
                                     : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                                 }`}
                                 title={p.prodiNama}
@@ -510,17 +511,17 @@ export const Step3Explore: React.FC = () => {
                         {/* Selected Major Header & Quadrant Status */}
                         <div>
                           <div className="flex items-center justify-between gap-2 mb-1">
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-blue-600 text-white">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-brand-500 text-white">
                               Peringkat #{selectedRec.rank} Rekomendasi
                             </span>
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-brand-100 text-brand-600 dark:bg-blue-950 dark:text-blue-300">
                               {selectedRec.rumpun}
                             </span>
                           </div>
                           <h4 className="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white leading-tight">
                             {selectedRec.prodiNama}
                           </h4>
-                          <p className="text-xs text-blue-600 dark:text-blue-400 font-semibold mt-1">
+                          <p className="text-xs text-brand-500 dark:text-blue-400 font-semibold mt-1">
                             {selectedRec.quadrant}
                           </p>
                         </div>
@@ -531,14 +532,14 @@ export const Step3Explore: React.FC = () => {
                           <div>
                             <div className="flex items-center justify-between text-xs mb-1">
                               <span className="font-bold text-slate-900 dark:text-white">Skor Kecocokan Total</span>
-                              <span className="text-base font-extrabold font-mono text-blue-600 dark:text-blue-400">
+                              <span className="text-base font-extrabold font-mono text-brand-500 dark:text-blue-400">
                                 {selectedRec.skorTotal}%
                               </span>
                             </div>
                             <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
                               <div
                                 style={{ width: `${selectedRec.skorTotal}%` }}
-                                className="h-full bg-gradient-to-r from-blue-600 to-emerald-500 rounded-full transition-all duration-300"
+                                className="h-full bg-gradient-to-r from-brand-500 to-emerald-500 rounded-full transition-all duration-300"
                               />
                             </div>
                             <span className="text-[10px] text-slate-400 dark:text-slate-500 block mt-0.5">
@@ -557,7 +558,7 @@ export const Step3Explore: React.FC = () => {
                             <div className="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
                               <div
                                 style={{ width: `${selectedRec.rawX}%` }}
-                                className="h-full bg-blue-500 rounded-full transition-all duration-300"
+                                className="h-full bg-brand-500 rounded-full transition-all duration-300"
                               />
                             </div>
                           </div>
@@ -653,7 +654,7 @@ export const Step3Explore: React.FC = () => {
                                     className={`px-3 py-1.5 rounded-xl font-bold text-[11px] transition cursor-pointer flex items-center gap-1 ${
                                       isShortlisted
                                         ? 'bg-emerald-600 text-white hover:bg-rose-600'
-                                        : 'bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 hover:bg-blue-600 hover:text-white'
+                                        : 'bg-brand-50 dark:bg-blue-950 text-brand-600 dark:text-blue-300 hover:bg-brand-500 hover:text-white'
                                     }`}
                                   >
                                     {isShortlisted ? <Check className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
@@ -675,18 +676,18 @@ export const Step3Explore: React.FC = () => {
           <div className="space-y-4">
             {loadingExplore ? (
               <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
-                <div className="w-8 h-8 border-3 border-blue-600 dark:border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+                <div className="w-8 h-8 border-3 border-brand-500 dark:border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
                 <p className="text-xs text-slate-500 dark:text-slate-400">Mengkalkulasi rekomendasi deterministik profil Anda...</p>
               </div>
             ) : (
               recommendations.map((rec, idx) => (
                 <div
                   key={rec.prodiId}
-                  className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xs hover:border-blue-300 dark:hover:border-blue-700 transition"
+                  className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-5 sm:p-6 shadow-xs hover:border-blue-300 dark:hover:border-brand-600 transition"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/70 border border-blue-200 dark:border-blue-900 text-blue-700 dark:text-blue-300 flex items-center justify-center font-bold text-sm shrink-0">
+                      <div className="w-10 h-10 rounded-2xl bg-brand-50 dark:bg-blue-950/70 border border-blue-200 dark:border-blue-900 text-brand-600 dark:text-blue-300 flex items-center justify-center font-bold text-sm shrink-0">
                         #{idx + 1}
                       </div>
                       <div>
@@ -695,7 +696,7 @@ export const Step3Explore: React.FC = () => {
                           <span
                             className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
                               rec.rumpun === 'Saintek'
-                                ? 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800'
+                                ? 'bg-brand-50 text-brand-600 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800'
                                 : 'bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800'
                             }`}
                           >
@@ -714,7 +715,7 @@ export const Step3Explore: React.FC = () => {
                         <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                           Skor Kesesuaian
                         </span>
-                        <span className="text-lg font-extrabold text-blue-700 dark:text-blue-400 font-mono">
+                        <span className="text-lg font-extrabold text-brand-600 dark:text-blue-400 font-mono">
                           {rec.skorTotal}%
                         </span>
                       </div>
@@ -791,7 +792,7 @@ export const Step3Explore: React.FC = () => {
                               className={`p-2 rounded-xl transition cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center ${
                                 isShortlisted
                                   ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                                  : 'bg-white dark:bg-slate-800 hover:bg-blue-600 hover:text-white text-blue-700 dark:text-blue-300 border border-slate-300 dark:border-slate-600 hover:border-blue-600'
+                                  : 'bg-white dark:bg-slate-800 hover:bg-brand-500 hover:text-white text-brand-600 dark:text-blue-300 border border-slate-300 dark:border-slate-600 hover:border-brand-500'
                               }`}
                               title={isShortlisted ? 'Hapus dari Shortlist' : 'Tambah ke Shortlist'}
                             >
@@ -827,7 +828,7 @@ export const Step3Explore: React.FC = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Cari nama prodi atau kampus (UI, UGM, TI)..."
-                  className="w-full pl-9 pr-3 py-2.5 text-base sm:text-xs min-h-[44px] bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-9 pr-3 py-2.5 text-base sm:text-xs min-h-[44px] bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-2xl text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-brand-500"
                 />
               </div>
 
@@ -836,7 +837,7 @@ export const Step3Explore: React.FC = () => {
                 <select
                   value={selectedPtn}
                   onChange={(e) => setSelectedPtn(e.target.value)}
-                  className="w-full py-2.5 px-3 text-base sm:text-xs min-h-[44px] border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500"
+                  className="w-full py-2.5 px-3 text-base sm:text-xs min-h-[44px] border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-brand-500"
                 >
                   <option value="all" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
                     Semua PTN (10 Kampus MVP)
@@ -854,7 +855,7 @@ export const Step3Explore: React.FC = () => {
                 <select
                   value={selectedRumpun}
                   onChange={(e) => setSelectedRumpun(e.target.value)}
-                  className="w-full py-2.5 px-3 text-base sm:text-xs min-h-[44px] border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500"
+                  className="w-full py-2.5 px-3 text-base sm:text-xs min-h-[44px] border border-slate-300 dark:border-slate-700 rounded-2xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-brand-500"
                 >
                   <option value="all" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Semua Rumpun Ilmu</option>
                   <option value="Saintek" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">Saintek (Sains & Teknologi)</option>
@@ -889,14 +890,14 @@ export const Step3Explore: React.FC = () => {
                     <div>
                       {/* Top Badges */}
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/70 px-2.5 py-0.5 rounded-full border border-blue-100 dark:border-blue-900">
+                        <span className="text-xs font-bold text-brand-600 dark:text-blue-300 bg-brand-50 dark:bg-blue-950/70 px-2.5 py-0.5 rounded-full border border-brand-100 dark:border-blue-900">
                           {ptn?.singkatan} • {ptn?.provinsi}
                         </span>
                         <div className="flex items-center gap-1.5">
                           <span
                             className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
                               prodi.rumpun === 'Saintek'
-                                ? 'bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300'
+                                ? 'bg-brand-50 text-brand-600 dark:bg-blue-950/60 dark:text-blue-300'
                                 : 'bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300'
                             }`}
                           >
@@ -930,7 +931,7 @@ export const Step3Explore: React.FC = () => {
                           {prodi.acuanSkorUTBK?.status === 'belum_ada_acuan' ? (
                             <span className="font-semibold text-slate-400 dark:text-slate-500 italic">Belum Ada Acuan</span>
                           ) : (
-                            <span className="font-bold text-blue-700 dark:text-blue-400 font-mono">
+                            <span className="font-bold text-brand-600 dark:text-blue-400 font-mono">
                               {prodi.acuanSkorUTBK?.rendah} - {prodi.acuanSkorUTBK?.tinggi}
                             </span>
                           )}
@@ -957,7 +958,7 @@ export const Step3Explore: React.FC = () => {
                       className={`w-full py-3 px-4 min-h-[44px] rounded-2xl font-bold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99] ${
                         isShortlisted
                           ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                          : 'bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-600 dark:hover:bg-blue-600 text-blue-700 dark:text-blue-300 hover:text-white border border-blue-200 dark:border-blue-900 hover:border-blue-600'
+                          : 'bg-brand-50 dark:bg-blue-950/60 hover:bg-brand-500 dark:hover:bg-brand-500 text-brand-600 dark:text-blue-300 hover:text-white border border-blue-200 dark:border-blue-900 hover:border-brand-500'
                       }`}
                     >
                       {isShortlisted ? (
@@ -980,15 +981,18 @@ export const Step3Explore: React.FC = () => {
         </div>
       )}
 
-      {/* Sticky Bottom Shortlist Bar */}
-      <div className="fixed bottom-0 inset-x-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 py-3 px-4 z-30 shadow-xl transition-colors duration-200">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      {/* Shortlist bar — sticky di mobile; inline mengikuti konten di desktop */}
+      <div
+        className="fixed bottom-0 inset-x-0 lg:static lg:border-0 lg:shadow-none lg:bg-transparent lg:backdrop-blur-none lg:mt-6 lg:px-0 bg-[color-mix(in_srgb,var(--color-cream-card)_94%,transparent)] backdrop-blur-md border-t border-[color-mix(in_srgb,var(--color-stroke)_14%,transparent)] pt-3 px-4 z-30 shadow-xl transition-colors duration-200"
+        style={{ paddingBottom: 'calc(0.75rem + var(--safe-bottom))' }}
+      >
+        <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 sm:pb-0 no-scrollbar">
-            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap">
+            <span className="text-xs font-bold text-[var(--color-ink)] whitespace-nowrap">
               Target Shortlist ({shortlist.length}/4):
             </span>
             {shortlist.length === 0 ? (
-              <span className="text-xs text-slate-400 dark:text-slate-500 italic">Belum ada prodi yang dipilih</span>
+              <span className="text-xs text-[color-mix(in_srgb,var(--color-ink)_50%,transparent)] italic">Belum ada prodi yang dipilih</span>
             ) : (
               shortlist.map((id) => {
                 const p = prodiList.find((item) => item.id === id);
@@ -996,7 +1000,7 @@ export const Step3Explore: React.FC = () => {
                 return (
                   <span
                     key={id}
-                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 rounded-xl text-xs font-bold border border-blue-200 dark:border-blue-900 whitespace-nowrap"
+                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-brand-50 dark:bg-blue-950/70 text-blue-800 dark:text-blue-300 rounded-xl text-xs font-bold border border-blue-200 dark:border-blue-900 whitespace-nowrap"
                   >
                     <span>{ptn?.singkatan} • {p?.nama}</span>
                     <button
@@ -1012,15 +1016,17 @@ export const Step3Explore: React.FC = () => {
             )}
           </div>
 
-          <button
-            type="button"
+          <Button
+            variant="primary"
+            brutal
+            size="md"
             disabled={shortlist.length === 0}
             onClick={handleNextStep}
-            className="w-full sm:w-auto px-6 py-3 min-h-[44px] bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 disabled:opacity-50 text-white rounded-2xl font-bold text-xs shadow-md shadow-blue-600/20 transition flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95"
+            rightIcon={<ArrowRight className="w-4 h-4" />}
+            className="w-full sm:w-auto shrink-0"
           >
-            <span>Lanjut ke Analisis Kelayakan ({shortlist.length} Prodi)</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+            Lanjut ke Analisis ({shortlist.length} Prodi)
+          </Button>
         </div>
       </div>
     </div>

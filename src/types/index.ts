@@ -195,3 +195,64 @@ export interface DemoPersona {
   shortlistProdiIds: string[];
   preferredStep: number;
 }
+
+// ============================================================================
+// Tes Minat RIASEC (integrasi jalurku-be: /riasec/questions, /submit, /cerita)
+// ============================================================================
+
+// Enam dimensi minat Holland/RIASEC (nama dimensi mengikuti backend minat.dimensi).
+export type RiasecDimensi =
+  | 'realistis'
+  | 'investigatif'
+  | 'artistik'
+  | 'sosial'
+  | 'enterprising'
+  | 'konvensional';
+
+export interface RiasecItem {
+  id: string; // mis. "r1", "i2"
+  dimensi: RiasecDimensi;
+  teks: string;
+}
+
+export interface RiasecSkala {
+  min: number;
+  maks: number;
+  label?: Record<string, string>; // "0" -> "Sangat tidak suka"
+}
+
+// Respons GET /riasec/questions
+export interface RiasecQuestionsResponse {
+  versi_instrumen: string;
+  sumber: string;
+  skala: RiasecSkala;
+  min_terjawab: number;
+  dimensi: RiasecDimensi[];
+  item: RiasecItem[];
+}
+
+// Respons POST /riasec/submit (kuesioner, deterministik)
+export interface RiasecResult {
+  versi_instrumen: string;
+  skor_norm: Record<string, number>; // dimensi -> 0..1
+  skor_mentah: Record<string, number>;
+  holland_code: string; // mis. "ICR"
+  dimensi_teratas: string[];
+  jumlah_item: Record<string, number>;
+  terjawab: number;
+  total_item: number;
+  tersimpan: boolean;
+  catatan: string;
+}
+
+// Respons POST /riasec/cerita (jalur AI; degradasi mulus)
+export interface RiasecCeritaResult {
+  skor_norm: Record<string, number>; // dimensi -> 0..1
+  holland_code: string; // "" bila tidak yakin
+  dimensi_teratas: string[];
+  sumber: 'llm' | 'fallback';
+  yakin: boolean;
+  fallback: boolean;
+  tersimpan: boolean;
+  catatan: string;
+}

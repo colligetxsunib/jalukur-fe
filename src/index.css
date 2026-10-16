@@ -1,10 +1,150 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+/* LIGHT-FIRST: `dark:` variant dinonaktifkan total (butuh kelas .force-dark eksplisit,
+   yang tidak dipakai). Dengan ini seluruh `dark:bg-slate-900` dkk. TIDAK AKTIF, sehingga
+   komponen lama otomatis mengikuti palet terang tanpa harus menyapu ratusan class. */
+@custom-variant dark (&:where(.force-dark, .force-dark *));
+
+/* =============================================================================
+   JalurKu — Design Tokens (Fase 0, lihat design.md §7)
+   Diekspos sebagai utility Tailwind v4 via @theme. Additive & non-breaking:
+   komponen lama (slate/blue) tetap jalan; token baru dipakai bertahap di fase berikut.
+   Token warna semantik (reach/match/safe) dipetakan ke makna produk — jangan dipakai
+   untuk makna lain. Nilai dark mode disesuaikan terpisah di bawah via .dark.
+   ============================================================================= */
+@theme {
+  /* --- Brand: Forest Green (gaya e-learning hangat) — sinkron design.md §8 --- */
+  --color-brand-50: #EDF3EE;
+  --color-brand-100: #DCE8DF;
+  --color-brand-200: #A9C6B3;
+  --color-brand-500: #2E6E4E; /* primary — hijau hutan */
+  --color-brand-600: #235C3D; /* hover/pressed */
+  --color-brand-700: #1C3A2A;
+
+  /* --- Permukaan hangat (cream / sand) — sinkron design.md §2 --- */
+  --color-cream: #EDE4CF;      /* latar aplikasi (sand hangat) */
+  --color-cream-card: #FBF7EC; /* kartu */
+  --color-cream-sunk: #F0E8D5; /* input / track / area nested */
+  --color-ink: #243027;        /* teks utama (hijau-gelap) */
+  --color-stroke: #2F2A1E;     /* border kartu & bayangan offset (coklat tua) */
+
+  /* --- REMAP skala `slate` -> ramp hangat (cream..ink), sinkron design.md §8 ---
+     Seluruh komponen lama memakai slate-* untuk surface/teks/border. Dengan meremap di sini,
+     ratusan class `bg-slate-50`, `text-slate-500`, `border-slate-200`, dll. otomatis jadi
+     hangat & konsisten — tanpa menyentuh tiap file. (dark: variant hanya aktif via .force-dark.) */
+  --color-slate-50: #EDE4CF;   /* = cream (latar) */
+  --color-slate-100: #F0E8D5;  /* surface nested / chip */
+  --color-slate-200: #E3D8BE;  /* border halus */
+  --color-slate-300: #D2C4A3;  /* border tegas */
+  --color-slate-400: #9C9178;  /* teks placeholder/muted lemah */
+  --color-slate-500: #6E6752;  /* teks sekunder */
+  --color-slate-600: #574F3E;  /* teks sekunder kuat */
+  --color-slate-700: #3C372A;  /* teks kuat */
+  --color-slate-800: #2A2820;  /* teks sangat kuat / elemen gelap */
+  --color-slate-900: #243027;  /* = ink (judul) */
+  --color-slate-950: #161C14;  /* ink terdalam */
+
+  /* --- REMAP aksen lama (blue/indigo/emerald) -> palet hangat baru ---
+     Komponen lama penuh biru/indigo (aksen ungu-biru) & emerald. Remap agar nyambung
+     ke forest-green + amber tanpa menyapu tiap class. */
+  --color-blue-50: #EDF3EE;   --color-blue-100: #DCE8DF;  --color-blue-200: #A9C6B3;
+  --color-blue-300: #6FA982;  --color-blue-400: #3F8A5B;  --color-blue-500: #2E6E4E;
+  --color-blue-600: #235C3D;  --color-blue-700: #1C3A2A;  --color-blue-800: #163020;
+  --color-blue-900: #0F2417;  --color-blue-950: #0A1810;
+  --color-indigo-50: #EDF3EE; --color-indigo-100: #DCE8DF; --color-indigo-200: #A9C6B3;
+  --color-indigo-300: #6FA982; --color-indigo-400: #3F8A5B; --color-indigo-500: #2E6E4E;
+  --color-indigo-600: #235C3D; --color-indigo-700: #1C3A2A; --color-indigo-900: #0F2417;
+  --color-indigo-950: #0A1810;
+  --color-emerald-50: #EDF3EE; --color-emerald-100: #DCE8DF; --color-emerald-200: #A9C6B3;
+  --color-emerald-300: #6FA982; --color-emerald-400: #4CAF72; --color-emerald-500: #2E6E4E;
+  --color-emerald-600: #235C3D; --color-emerald-700: #1C3A2A; --color-emerald-800: #163020;
+  --color-emerald-900: #0F2417; --color-emerald-950: #0A1810;
+
+  /* --- Aksen (sinkron design.md §2) --- */
+  --color-amber: #E8B84B;        /* highlight: streak, hari aktif, bintang, badge */
+  --color-amber-soft: #F6E2A6;   /* latar highlight amber lembut */
+  --color-brick: #C85A3C;        /* ANGKA UTAMA, progress-fill, badge "Advanced" */
+  --color-teal: #2F7E8C;         /* aksen info sekunder (hemat) */
+  /* alias lama (jaga kompatibilitas komponen belum-migrasi) */
+  --color-accent-amber: #E8B84B;
+  --color-accent-lime: #E8B84B;
+  --color-accent-coral: #C85A3C;
+  --color-accent-sky: #2F7E8C;
+
+  /* --- Semantik produk (reach/match/safe/gate) — sinkron design.md §2 --- */
+  --color-safe: #2E6E4E;      /* SAFE  = aman (hijau brand) */
+  --color-match: #2F7E8C;     /* MATCH = kompetitif (teal) */
+  --color-reach: #C85A3C;     /* REACH = tantangan (bata) */
+  --color-danger: #B23A2E;    /* GATE gagal (merah bata tua) */
+  --color-muted-info: #8A8268;/* belum ada acuan / indikatif (khaki) */
+
+  /* --- Radius (sinkron design.md §5) --- */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-pill: 9999px;
+
+  /* --- Motion --- */
+  --ease-expressive: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-instant: 100ms;
+  --dur-fast: 160ms;
+  --dur-base: 240ms;
+  --dur-slow: 360ms;
+
+  /* --- Fonts (selaras dengan yang sudah di-load di index.html) --- */
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "Clash Display", "Space Grotesk", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Geist Mono", ui-monospace, monospace;
+
+  /* --- Shadows (offset solid pakai stroke coklat, design.md §5) --- */
+  --shadow-soft: 0 2px 10px rgba(36, 48, 39, 0.08);
+  --shadow-brutal: 3px 3px 0 0 var(--color-stroke); /* offset solid untuk kartu/CTA */
+
+  /* --- Type scale (mobile-first, sinkron design.md §2.3) --- */
+  --text-display: 2.5rem;    --text-display--line-height: 1.05;
+  --text-h1: 1.75rem;        --text-h1--line-height: 1.15;
+  --text-h2: 1.25rem;        --text-h2--line-height: 1.25;
+  --text-h3: 1.0625rem;      --text-h3--line-height: 1.35;
+}
+
+/* Dark mode (opsional, bukan default). Diaktifkan via kelas .force-dark (toggle tema).
+   Latar gelap kehijauan hangat + remap slate ke ramp gelap. */
+.force-dark {
+  --color-cream: #17201A;
+  --color-cream-card: #1F2A22;
+  --color-cream-sunk: #253026;
+  --color-ink: #ECEFEA;
+  --color-stroke: #0A0E0A;
+  --color-brand-500: #4CAF72;
+  --color-brand-600: #3C9360;
+  --color-amber: #E8B84B;
+  --color-brick: #E07A5A;
+  --color-safe: #4CAF72;
+  --color-match: #5FA8C4;
+  --color-reach: #E07A5A;
+  --color-danger: #E8705F;
+  --color-muted-info: #A49C8E;
+  --shadow-brutal: 3px 3px 0 0 #000000;
+
+  /* slate ramp dibalik untuk mode gelap */
+  --color-slate-50: #141A17;  --color-slate-100: #1C2420; --color-slate-200: #2A332C;
+  --color-slate-300: #3A463C; --color-slate-400: #8A9589; --color-slate-500: #A8B2A6;
+  --color-slate-600: #C0C8BE; --color-slate-700: #D4DAD1; --color-slate-800: #E4E8E1;
+  --color-slate-900: #ECEFEA; --color-slate-950: #F5F7F2;
+}
+
+/* Safe-area helper (notch / home indicator). Dipakai pada sticky bottom bar & bottom sheet. */
+:root {
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
 
 @layer base {
   body {
-    @apply bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 antialiased min-h-[100dvh] font-sans transition-colors duration-200;
+    background-color: var(--color-cream);
+    color: var(--color-ink);
+    @apply antialiased min-h-[100dvh] font-sans transition-colors duration-200;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-tap-highlight-color: transparent;
   }
