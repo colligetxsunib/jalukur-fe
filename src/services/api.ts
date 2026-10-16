@@ -567,14 +567,14 @@ class ApiService {
           : (Array.isArray(item?.ptn) ? item.ptn.map((p: any) => {
               const rawId = String(p?.id || p?.ptn_id || '');
               const ptnId = rawId ? (rawId.startsWith('ptn-') ? rawId : `ptn-${rawId}`) : '';
-              const targetProdiId = (Array.isArray(item?.prodi_ids) && item.prodi_ids[0]) || p?.prodiId || undefined;
+              const specificProdiId = p?.prodiId || p?.prodi_id || undefined;
               return {
                 ptnId,
                 ptnNama: String(p?.nama || p?.ptn_nama || ''),
                 dayaTampungSNBT: Number(p?.dayaTampungSNBT ?? p?.daya_tampung_snbt ?? 50),
                 dayaTampungSNBP: Number(p?.dayaTampungSNBP ?? p?.daya_tampung_snbp ?? 30),
                 akreditasiProdi: String(p?.akreditasiProdi || p?.akreditasi || 'A'),
-                prodiId: targetProdiId,
+                prodiId: specificProdiId,
               };
             }) : []),
       };

@@ -625,16 +625,26 @@ export const Step3Explore: React.FC = () => {
                           <div className="space-y-2">
                             {selectedRec.ptnTersedia.map((ptnOpt) => {
                               const selProdiNama = selectedRec?.prodiNama || (selectedRec as any)?.nama_prodi || (selectedRec as any)?.prodi_nama || (selectedRec as any)?.nama || '';
-                              const ptnKey = (ptnOpt.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                              const ptnSlug = (ptnOpt.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                              const prodiSlug = (selProdiNama || selectedRec?.prodiId || 'prodi').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
                               const matchingProdi = prodiList.find((p) => {
-                                const pPtnKey = (p.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                                const pPtnSlug = (p.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                                const isThisPtn = pPtnSlug === ptnSlug || p.ptnId === ptnOpt.ptnId || (p.ptnId && p.ptnId.toLowerCase().includes(ptnSlug));
+                                if (!isThisPtn) return false;
+
+                                if (ptnOpt.prodiId && p.id === ptnOpt.prodiId) return true;
                                 const pName = (p.nama || '').toLowerCase();
                                 const rName = selProdiNama.toLowerCase();
-                                const ptnMatch = pPtnKey === ptnKey || p.ptnId === ptnOpt.ptnId || (p.ptnId && p.ptnId.includes(ptnKey));
-                                const nameMatch = (rName && (pName.includes(rName) || rName.includes(pName))) || (selectedRec?.prodiId && p.id === selectedRec.prodiId);
-                                return ptnMatch && nameMatch;
+                                return pName === rName || (rName.length > 3 && pName.includes(rName)) || (pName.length > 3 && rName.includes(pName));
                               });
-                              const targetProdiId = matchingProdi?.id || ptnOpt.prodiId || `${ptnOpt.ptnId}-${selectedRec.prodiId || selProdiNama.toLowerCase().replace(/\s+/g, '-')}`;
+
+                              const targetProdiId =
+                                matchingProdi?.id ||
+                                (ptnOpt.prodiId && (ptnOpt.prodiId.toLowerCase().includes(ptnSlug) || ptnOpt.prodiId.startsWith(ptnSlug))
+                                  ? ptnOpt.prodiId
+                                  : `${ptnSlug}-${prodiSlug}`);
+
                               const isShortlisted = shortlist.includes(targetProdiId);
 
                               return (
@@ -772,16 +782,25 @@ export const Step3Explore: React.FC = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                       {rec.ptnTersedia.map((ptnOpt) => {
                         const recProdiNama = rec?.prodiNama || (rec as any)?.nama_prodi || (rec as any)?.prodi_nama || (rec as any)?.nama || '';
-                        const ptnKey = (ptnOpt.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                        const ptnSlug = (ptnOpt.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                        const prodiSlug = (recProdiNama || rec?.prodiId || 'prodi').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
                         const matchingProdi = prodiList.find((p) => {
-                          const pPtnKey = (p.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                          const pPtnSlug = (p.ptnId || '').toLowerCase().replace(/^ptn-/, '');
+                          const isThisPtn = pPtnSlug === ptnSlug || p.ptnId === ptnOpt.ptnId || (p.ptnId && p.ptnId.toLowerCase().includes(ptnSlug));
+                          if (!isThisPtn) return false;
+
+                          if (ptnOpt.prodiId && p.id === ptnOpt.prodiId) return true;
                           const pName = (p.nama || '').toLowerCase();
                           const rName = recProdiNama.toLowerCase();
-                          const ptnMatch = pPtnKey === ptnKey || p.ptnId === ptnOpt.ptnId || (p.ptnId && p.ptnId.includes(ptnKey));
-                          const nameMatch = (rName && (pName.includes(rName) || rName.includes(pName))) || (rec?.prodiId && p.id === rec.prodiId);
-                          return ptnMatch && nameMatch;
+                          return pName === rName || (rName.length > 3 && pName.includes(rName)) || (pName.length > 3 && rName.includes(pName));
                         });
-                        const targetProdiId = matchingProdi?.id || ptnOpt.prodiId || `${ptnOpt.ptnId}-${rec.prodiId || recProdiNama.toLowerCase().replace(/\s+/g, '-')}`;
+
+                        const targetProdiId =
+                          matchingProdi?.id ||
+                          (ptnOpt.prodiId && (ptnOpt.prodiId.toLowerCase().includes(ptnSlug) || ptnOpt.prodiId.startsWith(ptnSlug))
+                            ? ptnOpt.prodiId
+                            : `${ptnSlug}-${prodiSlug}`);
 
                         const isShortlisted = shortlist.includes(targetProdiId);
 
